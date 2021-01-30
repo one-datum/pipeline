@@ -1,5 +1,6 @@
 numpy
+scipy
+matplotlib
 astropy
-astroquery
 numpyro
 jupyterlab
