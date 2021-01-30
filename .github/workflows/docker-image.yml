@@ -18,7 +18,7 @@ jobs:
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v1 
       with:
-        registry: ghcr.io
+        registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push
@@ -28,7 +28,8 @@ jobs:
         file: ./Dockerfile
         push: true
         platforms: linux/amd64
-        tags: ghcr.io/dfm/one-datum/env:main
+        tags: docker.pkg.github.com/dfm/one-datum/env:main
+
 #     - name: Push to GitHub Packages
 #       uses: docker/build-push-action@v1
 #       with:
