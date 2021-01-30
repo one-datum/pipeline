@@ -27,7 +27,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ghcr.io/dfm/one-datum:latest
+        tags: ghcr.io/dfm/one-datum/env:main
 #     - name: Push to GitHub Packages
 #       uses: docker/build-push-action@v1
 #       with:
