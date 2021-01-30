@@ -21,7 +21,7 @@ cd one-datum
 To download all the necessary data files (using wget), run
 
 ```bash
-./download.sh /path/to/data
+scripts/download /path/to/data
 ```
 
 where `/path/to/data` is the local path where you want to store the data files.

@@ -3,4 +3,5 @@ scipy
 matplotlib
 astropy
 numpyro
+tqdm
 jupyterlab
