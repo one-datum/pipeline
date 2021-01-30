@@ -44,7 +44,7 @@ This container comes with Jupyterlab installed and you can start a server in
 this environment with:
 
 ```bash
-singularity exec docker://ghcr.io/dfm/one-datum:main jupyter lab --ip='*'
+singularity exec --bind /path/to/data:/data docker://ghcr.io/dfm/one-datum:main jupyter lab --ip='*'
 ```
 
 Since I'm normally running this on a remote machine, I would generally add a
