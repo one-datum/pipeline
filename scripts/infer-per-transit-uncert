@@ -183,16 +183,16 @@ if __name__ == "__main__":
 
     # Save the results
     hdr = fits.Header()
-    hdr["min_nb_transits"] = args.min_nb_transits
-    hdr["min_color"] = args.min_color
-    hdr["max_color"] = args.max_color
-    hdr["num_color"] = args.num_color
+    hdr["min_tra"] = args.min_nb_transits
+    hdr["min_col"] = args.min_color
+    hdr["max_col"] = args.max_color
+    hdr["num_col"] = args.num_color
     hdr["min_mag"] = args.min_mag
     hdr["max_mag"] = args.max_mag
     hdr["num_mag"] = args.num_mag
-    hdr["num_iter"] = args.num_iter
-    hdr["targets_per_fit"] = args.targets_per_fit
-    hdr["num_optim"] = args.num_optim
+    hdr["num_itr"] = args.num_iter
+    hdr["num_per"] = args.targets_per_fit
+    hdr["num_opt"] = args.num_optim
     hdr["seed"] = args.seed
     fits.HDUList(
         [
