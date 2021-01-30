@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pathlib import Path
 import argparse
+from pathlib import Path
 from typing import Tuple
 
 import jax.numpy as jnp
-import matplotlib as mpl
-import matplotlib.colors as colors
-import matplotlib.pyplot as plt
 import numpy as np
 import numpyro
 import numpyro.distributions as dist
@@ -28,7 +25,8 @@ def load_data(
     color_range: Tuple[float, float] = (0.5, 3.0),
     mag_range: Tuple[float, float] = (8.0, 12.0),
 ) -> fits.fitsrec.FITS_rec:
-    with fits.open(data_path / "edr3-rv-good-plx-result.fits.gz", "r") as f:
+    print("Loading data...")
+    with fits.open(data_path / "edr3-rv-good-plx-result.fits.gz") as f:
         data = f[1].data
 
     m = np.isfinite(data["phot_g_mean_mag"])
@@ -121,14 +119,14 @@ def fit_data(
 
     np.random.seed(seed)
     inds = np.arange(len(data))
-    for n in tqdm(range(len(mag_bins) - 1)):
-        for m in tqdm(range(len(color_bins) - 1), position=1):
+    for n in tqdm(range(len(mag_bins) - 1), desc="magnitudes"):
+        for m in tqdm(range(len(color_bins) - 1), desc="colors", leave=False):
             mask = mag_bins[n] <= mag
             mask &= mag <= mag_bins[n + 1]
             mask &= color_bins[m] <= color
             mask &= color <= color_bins[m + 1]
 
-            for k in tqdm(range(num_iter), position=2):
+            for k in tqdm(range(num_iter), desc="iterations", leave=False):
                 masked_inds = np.random.choice(
                     inds[mask],
                     size=targets_per_fit,
