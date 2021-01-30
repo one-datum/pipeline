@@ -274,3 +274,5 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+src/*/*_version.py
