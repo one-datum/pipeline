@@ -1,6 +1,6 @@
 # one-datum
 
-What can we infer about an orbit from the RV or astrometric jitter?
+What can we infer about an orbit from the Gaia RV or astrometric jitter?
 
 ## Usage
 
@@ -32,11 +32,16 @@ You can run the container using Singularity as follows (on a module system, you
 might need to `module load singularity` first):
 
 ```bash
-singularity exec --bind /path/to/data:/data docker://ghcr.io/dfm/one-datum:main python
+singularity_exec () {
+  singularity exec --bind /path/to/data:/data docker://ghcr.io/dfm/one-datum:main $@;
+}
+singularity_exec python
 ```
 
-where `/path/to/data` is the data path that you used above. This should drop you
-into a Python instance with a correctly configured environment.
+where `/path/to/data` is the data path that you used above, and on the first
+line we're defining a wrapper function that we'll continue using below. The
+wrapper function isn't necessary, but it'll make the demos easier to parse. This
+should drop you into a Python instance with a correctly configured environment.
 
 ### Exploratory analysis with Jupyterlab
 
@@ -44,9 +49,21 @@ This container comes with Jupyterlab installed and you can start a server in
 this environment with:
 
 ```bash
-singularity exec --bind /path/to/data:/data docker://ghcr.io/dfm/one-datum:main jupyter lab --ip='*'
+singularity_exec jupyter lab --ip='*'
 ```
 
 Since I'm normally running this on a remote machine, I would generally add a
 specific port (`--port=8898`, for example) and then forward that port via SSH to
 my development machine.
+
+### Inferring per-transit RV uncertainty
+
+This is done on a grid in BP-RP color and apparent G-magnitude. Use
+
+```bash
+singularity_exec scripts/infer-per-transit-uncert
+```
+
+to run with the default arguments or add the `--help` flag to see the available
+parameters. This will save a file `rv_uncertainty_grid.fits` in your data
+directory.
