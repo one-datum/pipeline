@@ -13,7 +13,7 @@ jobs:
       - name: Compile
         uses: docker://texlive/texlive:latest
         with:
-          args: cd paper; make
+          entrypoint: paper/compile-paper.sh
       - uses: actions/upload-artifact@v2
         with:
           name: paper
