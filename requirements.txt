@@ -5,3 +5,5 @@ astropy
 numpyro
 tqdm
 jupyterlab
+kepler.py
+corner
