@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-     - uses: actions/cache@v2
+      - uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-          ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-
       - name: Docker meta
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
