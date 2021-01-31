@@ -1,5 +1,4 @@
 FROM python:3.8
-WORKDIR /code
 
 RUN apt-get update \
  && apt-get install -y \
