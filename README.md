@@ -32,16 +32,14 @@ You can run the container using Singularity as follows (on a module system, you
 might need to `module load singularity` first):
 
 ```bash
-singularity_exec () {
-  singularity exec --bind /path/to/data:/data docker://ghcr.io/dfm/one-datum:main $@;
-}
+alias singularity_exec="singularity exec --bind /path/to/data:/data docker://ghcr.io/dfm/one-datum:main"
 singularity_exec python
 ```
 
 where `/path/to/data` is the data path that you used above, and on the first
-line we're defining a wrapper function that we'll continue using below. The
-wrapper function isn't necessary, but it'll make the demos easier to parse. This
-should drop you into a Python instance with a correctly configured environment.
+line we're defining an alias that we'll continue using below. This isn't
+necessary, but it'll make the demos easier to parse. The above command should
+drop you into a Python instance with a correctly configured environment.
 
 ### Exploratory analysis with Jupyterlab
 
