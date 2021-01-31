@@ -1,0 +1,66 @@
+\documentclass[modern, letterpaper]{aastex63}
+
+\usepackage{microtype}
+\usepackage{amsmath}
+
+\include{figures/githash}
+
+\newcommand{\package}[1]{\textsf{#1}}
+\newcommand{\project}[1]{\textsl{#1}}
+\newcommand{\acronym}[1]{{\small{#1}}}
+
+\shorttitle{Sample article}
+\shortauthors{Foreman-Mackey et al.}
+
+\begin{document}
+
+\title{My paper\footnote{Git hash: \textsf{\githash}}}
+
+\correspondingauthor{Daniel Foreman-Mackey}
+\email{dforeman-mackey@flatironinstitute.org}
+
+\author[0000-0002-9328-5652]{Daniel Foreman-Mackey}
+\affiliation{Center for Computational Astrophysics, Flatiron Institute, New York, NY}
+
+\author{TBD}
+
+\begin{abstract}
+  This is a paper about unresolved binaries in Gaia RVs.
+\end{abstract}
+
+\keywords{Astrostatistics (1882) --- Binary stars (154) --- Radial velocity (1332)}
+
+\section{Introduction} \label{sec:intro}
+
+This is a paper.
+See Figure~\ref{fig:demo_figure}.
+
+\begin{figure}
+  \plotone{figures/demo_figure.pdf}
+  \caption{This is a really lame figure. \label{fig:demo_figure}}
+\end{figure}
+
+\acknowledgments
+The authors would like to thank the Astronomical Data Group at Flatiron for listening to every iteration of this project and for providing great feedback every step of the way.
+
+\vspace{5mm}
+\facilities{
+  \project{APOGEE},
+  \project{Gaia}
+}
+\software{
+  \package{AstroPy} \citep{Astropy2013, Astropy2018},
+  \package{JAX} \citep{Bradbury2018},
+  \package{NumPy} \citep{Harris2020},
+  \package{Matplotlib} \citep{Hunter2007},
+  \package{SciPy} \citep{Virtanen2020}
+}
+
+\appendix
+
+\section{Probably some fancy math}
+
+\bibliography{one-datum}{}
+\bibliographystyle{aasjournal}
+
+\end{document}
