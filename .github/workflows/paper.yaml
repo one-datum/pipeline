@@ -1,0 +1,24 @@
+name: Paper
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: docker://texlive/texlive:latest
+        run: |
+          cd paper
+          pdflatex one-datum.tex
+          bibtex one-datum
+          pdflatex one-datum.tex
+          pdflatex one-datum.tex
+      - uses: actions/upload-artifact@v2
+        with:
+          name: paper
+          path: paper/one-datum.pdf
