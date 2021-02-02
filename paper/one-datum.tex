@@ -9,12 +9,14 @@
 \newcommand{\project}[1]{\textsl{#1}}
 \newcommand{\acronym}[1]{{\small{#1}}}
 
+\newcommand{\Gaia}{\project{Gaia}]}
+
 \shorttitle{Sample article}
 \shortauthors{Foreman-Mackey et al.}
 
 \begin{document}
 
-\title{My paper\footnote{Git hash: \textsf{\githash}}}
+\title{Millions of radial velocity orbits from Gaia\footnote{Git hash: \textsf{\githash}}}
 
 \correspondingauthor{Daniel Foreman-Mackey}
 \email{dforeman-mackey@flatironinstitute.org}
@@ -31,6 +33,25 @@
 \keywords{Astrostatistics (1882) --- Binary stars (154) --- Radial velocity (1332)}
 
 \section{Introduction} \label{sec:intro}
+
+By the end of the \Gaia\ Mission, it will discover SOME LARGE NUMBER of exoplanet and multiple star systems based on time resolved astrometry and radial velocities of many targets.
+In the meantime, we only have static measurements of the radial velocity, but it turns out that there is still information in the existing public facing catalog to place constraints on the orbital parameters of multiple systems using the \Gaia\ data.
+It has been previously demonstrated that the published radial velocity and astrometric ``errors'' can be used a proxy for multiplicity or data quality.
+In this paper, however, we demonstrate that it is possible to use the reported radial velocity errors and a probabilistic model to place constraints on the radial velocity amplitude and, in some cases, some other properties of the orbit.
+These measurements are useful for many applications, including \emph{(a)} discovering black holes, \emph{(b)} vetting transiting exoplanet discoveries, \emph{(c)} measuring the masses of a large sample of eclipsing binaries, \emph{(d)} quantify the binary fraction across the H--R diagram, and \emph{(e)} informing constraints on exoplanet formation and evolution theory, to name a few.
+
+
+\section{The basic idea}
+
+\section{Estimating the per-transit radial velocity precision}
+
+\section{Bulk radial velocity inference}
+
+\section{Artisanal radial velocities}
+
+\section{Validation}
+
+\section{Discussion}
 
 This is a paper.
 See Figure~\ref{fig:demo_figure}.
