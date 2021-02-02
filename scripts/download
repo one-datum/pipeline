@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 datadir=${1:-.}
-wget https://users.flatironinstitute.org/~apricewhelan/data/edr3/edr3-rv-good-plx-result.fits.gz --directory-prefix=$datadir
-wget https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/gold_sample.fits --directory-prefix=$datadir
-wget "https://www.dropbox.com/s/xo1n12fxzgzybny/kepler_dr2_1arcsec.fits?dl=1" -O $datadir/kepler_dr2_1arcsec.fits
+wget -nc https://users.flatironinstitute.org/~apricewhelan/data/edr3/edr3-rv-good-plx-result.fits.gz --directory-prefix=$datadir
+wget -nc https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/gold_sample.fits --directory-prefix=$datadir
+wget -nc "https://www.dropbox.com/s/xo1n12fxzgzybny/kepler_dr2_1arcsec.fits?dl=1" -O $datadir/kepler_dr2_1arcsec.fits

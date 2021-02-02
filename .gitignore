@@ -277,3 +277,5 @@ TSWLatexianTemp*
 
 src/*/*_version.py
 data
+.devcontainer
+devcontainer.json

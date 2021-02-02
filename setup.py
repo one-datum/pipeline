@@ -14,7 +14,7 @@ def read(*parts):
 
 
 setup(
-    name="one-datum",
+    name="one_datum",
     author="Dan Foreman-Mackey",
     author_email="foreman.mackey@gmail.com",
     url="https://github.com/dfm/one-datum",
