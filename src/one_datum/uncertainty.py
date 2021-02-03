@@ -12,7 +12,11 @@ from scipy.ndimage import gaussian_filter
 
 
 def get_uncertainty_model(
-    *, bounds_error: bool = False, fill_value: Optional[float] = None
+    *,
+    color_smoothing_scale: float = 0.1,
+    mag_smoothing_scale: float = 0.1,
+    bounds_error: bool = False,
+    fill_value: Optional[float] = None
 ) -> RegularGridInterpolator:
     filename = pkg_resources.resource_filename(
         __name__, "data/rv_uncertainty_grid.fits"
@@ -27,8 +31,10 @@ def get_uncertainty_model(
     )
     mag_bins = np.linspace(hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1)
 
-    ln_sigma_model = gaussian_filter(np.mean(mu, axis=-1), (1, 0.8))
+    dc = color_smoothing_scale / (color_bins[1] - color_bins[0])
+    dm = mag_smoothing_scale / (mag_bins[1] - mag_bins[0])
 
+    ln_sigma_model = gaussian_filter(np.mean(mu, axis=-1), (dm, dc))
     return RegularGridInterpolator(
         [
             0.5 * (mag_bins[1:] + mag_bins[:-1]),

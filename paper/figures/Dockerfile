@@ -5,8 +5,11 @@ RUN apt-get update \
     fonts-liberation \
  && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY paper/figures/requirements.txt requirements.txt
 RUN python -m pip install -U pip \
  && python -m pip install -r requirements.txt
+
+COPY . /build
+RUN python -m pip install /build
 
 ENTRYPOINT paper/figures/make-figures.sh
