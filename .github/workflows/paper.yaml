@@ -19,11 +19,6 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
-      - name: Docker meta
-        id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
-        with:
-          images: ${{ github.repository }}/figures
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -41,14 +36,14 @@ jobs:
           context: .
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/${{ steps.docker_meta.outputs.tags }}
+          tags: ghcr.io/dfm/one-datum-figures:latest
           labels: ${{ steps.docker_meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
       # Generate the figures
       - name: Figures
-        uses: docker://ghcr.io/${{ steps.docker_meta.outputs.tags }}
+        uses: docker://ghcr.io/dfm/one-datum-figures:latest
 
       # # Compile the PDF using TeXLive
       # - name: Paper
