@@ -22,8 +22,8 @@ def load_data(
     data_path: Path = Path("/data"),
     *,
     min_nb_transits: int = 3,
-    color_range: Tuple[float, float] = (0.5, 3.0),
-    mag_range: Tuple[float, float] = (8.0, 12.0),
+    color_range: Tuple[float, float] = (0.0, 5.5),
+    mag_range: Tuple[float, float] = (4.5, 16.0),
 ) -> fits.fitsrec.FITS_rec:
     print("Loading data...")
     with fits.open(data_path / "edr3-rv-good-plx-result.fits.gz") as f:
@@ -173,11 +173,11 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--data", default="/data")
     parser.add_argument("--suffix", type=str, default="")
     parser.add_argument("--min-nb-transits", type=int, default=3)
-    parser.add_argument("--min-color", type=float, default=0.5)
-    parser.add_argument("--max-color", type=float, default=3.0)
+    parser.add_argument("--min-color", type=float, default=0.0)
+    parser.add_argument("--max-color", type=float, default=5.5)
     parser.add_argument("--num-color", type=int, default=20)
-    parser.add_argument("--min-mag", type=float, default=8.0)
-    parser.add_argument("--max-mag", type=float, default=12.0)
+    parser.add_argument("--min-mag", type=float, default=4.5)
+    parser.add_argument("--max-mag", type=float, default=16.0)
     parser.add_argument("--num-mag", type=int, default=18)
     parser.add_argument("--num-iter", type=int, default=5)
     parser.add_argument("--targets-per-fit", type=int, default=1000)
