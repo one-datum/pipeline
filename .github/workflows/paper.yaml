@@ -43,7 +43,8 @@ jobs:
 
       # Generate the figures
       - name: Figures
-        uses: docker://ghcr.io/dfm/one-datum-figures:latest
+        run: docker run --rm -v $(pwd):/workspace --workdir /workspace ghcr.io/dfm/one-datum-figures:latest
+        # uses: docker://ghcr.io/dfm/one-datum-figures:latest
 
       # # Compile the PDF using TeXLive
       # - name: Paper
