@@ -88,8 +88,8 @@ def fit_data(
     *,
     num_mag_bins: int,
     num_color_bins: int,
-    color_range: Tuple[float, float] = (0.5, 3.0),
-    mag_range: Tuple[float, float] = (8.0, 12.0),
+    color_range: Tuple[float, float] = (0.0, 5.5),
+    mag_range: Tuple[float, float] = (4.5, 16.0),
     num_iter: int = 5,
     targets_per_fit: int = 1000,
     num_optim: int = 5000,
@@ -116,6 +116,7 @@ def fit_data(
     )
     mu = np.empty((len(mag_bins) - 1, len(color_bins) - 1, num_iter))
     sigma = np.empty_like(mu)
+    count = np.empty((len(mag_bins) - 1, len(color_bins) - 1), dtype=np.int64)
 
     np.random.seed(seed)
     inds = np.arange(len(data))
@@ -125,6 +126,27 @@ def fit_data(
             mask &= mag <= mag_bins[n + 1]
             mask &= color_bins[m] <= color
             mask &= color <= color_bins[m + 1]
+
+            count[n, m] = mask.sum()
+
+            # For small amounts of data
+            if count[n, m] <= targets_per_fit:
+                if count[n, m] < 50:
+                    mu[n, m, :] = np.nan
+                    sigma[n, m, :] = np.nan
+                    continue
+
+                svi_result = svi.run(
+                    random.PRNGKey(seed + n + m),
+                    num_optim,
+                    num_transit[masked_inds],
+                    sample_variance[masked_inds],
+                    progress_bar=False,
+                )
+                params = svi_result.params
+                mu[n, m, :] = params["mu_log_sigma0"]
+                sigma[n, m, :] = params["sigma_log_sigma0"]
+                continue
 
             for k in tqdm(range(num_iter), desc="iterations", leave=False):
                 masked_inds = np.random.choice(
@@ -143,7 +165,7 @@ def fit_data(
                 mu[n, m, k] = params["mu_log_sigma0"]
                 sigma[n, m, k] = params["sigma_log_sigma0"]
 
-    return mu, sigma
+    return mu, sigma, count
 
 
 if __name__ == "__main__":
@@ -171,7 +193,7 @@ if __name__ == "__main__":
         mag_range=(args.min_mag, args.max_mag),
     )
 
-    mu, sigma = fit_data(
+    mu, sigma, count = fit_data(
         data,
         num_mag_bins=args.num_mag,
         num_color_bins=args.num_color,
@@ -201,6 +223,7 @@ if __name__ == "__main__":
             fits.PrimaryHDU(header=hdr),
             fits.ImageHDU(mu),
             fits.ImageHDU(sigma),
+            fits.ImageHDU(count),
         ]
     ).writeto(
         data_path / f"rv_uncertainty_grid{args.suffix}.fits", overwrite=True
