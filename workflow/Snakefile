@@ -1,0 +1,18 @@
+from snakemake.utils import min_version, validate
+min_version("5.12.0")
+
+configfile: "config/config.yaml"
+validate(config, "schemas/config.schema.yaml")
+
+container: "docker://continuumio/miniconda3:3.4.9"
+
+include: "rules/data.smk"
+include: "rules/noise.smk"
+
+rule all:
+    input:
+        "resources/data/kepler_dr2_1arcsec.fits"
+    log:
+        "results/logs/all.log"
+    run:
+        shell("ls")

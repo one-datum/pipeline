@@ -1,0 +1,6 @@
+noise:
+  suffix: "-test"
+  num_color: 2
+  num_mag: 3
+  targets_per_fit: 100
+  num_iter: 2
