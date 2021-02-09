@@ -10,4 +10,7 @@ COPY requirements.txt .
 RUN python -m pip install -U pip \
  && python -m pip install -r requirements.txt
 
+COPY . /build
+RUN python -m pip install /build
+
 CMD [ "python", "--version" ]

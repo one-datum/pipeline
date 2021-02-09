@@ -16,7 +16,9 @@ jobs:
 
       # Generate the figures
       - name: Figures
-        uses: ./paper/figures
+        uses: .
+        with:
+          entrypoint: paper/figures/make-figures.sh
 
       # Compile the PDF using TeXLive
       - name: Paper
