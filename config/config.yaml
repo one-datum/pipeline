@@ -1,0 +1,38 @@
+gaia:
+  credentials_file: ""
+  # credentials_file: "/path/to/gaia/archive.login"
+  # or...
+  # user = "username"
+  # password = "password"
+
+noise:
+  # A suffix to add to the output filename
+  suffix: ""
+
+  # A random number seed
+  seed: 11239
+
+  # Minimum number of RVS transits required to estimate the noise model
+  min_nb_transits: 3
+
+  # The color and magnitude grid specification
+  min_color: 0.0
+  max_color: 5.5
+  num_color: 20
+
+  min_mag: 4.5
+  max_mag: 16.0
+  num_mag: 18
+
+  # The number of targets to fit at once
+  targets_per_fit: 1000
+
+  # The number of SVI optimization steps to run
+  num_optim: 5000
+
+  # The number of random subsets to execute per inference
+  num_iter: 5
+
+  # Postprocessing parameters
+  color_smoothing_scale: 0.25
+  mag_smoothing_scale: 0.5

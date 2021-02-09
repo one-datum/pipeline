@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import argparse
-from pathlib import Path
 from typing import Tuple
 
 import jax.numpy as jnp
@@ -17,6 +15,7 @@ from tqdm import tqdm
 
 config.update("jax_enable_x64", True)
 
+
 MIN_COLOR: float = 0.0
 MAX_COLOR: float = 5.5
 MIN_MAG: float = 4.5
@@ -24,14 +23,14 @@ MAX_MAG: float = 16.0
 
 
 def load_data(
-    data_path: Path = Path("/data"),
+    data_path,
     *,
     min_nb_transits: int = 3,
     color_range: Tuple[float, float] = (MIN_COLOR, MAX_COLOR),
     mag_range: Tuple[float, float] = (MIN_MAG, MAX_MAG),
 ) -> fits.fitsrec.FITS_rec:
     print("Loading data...")
-    with fits.open(data_path / "edr3-rv-good-plx-result.fits.gz") as f:
+    with fits.open(data_path) as f:
         data = f[1].data
 
     m = np.isfinite(data["phot_g_mean_mag"])
@@ -174,55 +173,54 @@ def fit_data(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--data", default="/data")
-    parser.add_argument("--suffix", type=str, default="")
-    parser.add_argument("--min-nb-transits", type=int, default=3)
-    parser.add_argument("--min-color", type=float, default=MIN_COLOR)
-    parser.add_argument("--max-color", type=float, default=MAX_COLOR)
-    parser.add_argument("--num-color", type=int, default=20)
-    parser.add_argument("--min-mag", type=float, default=MIN_MAG)
-    parser.add_argument("--max-mag", type=float, default=MAX_MAG)
-    parser.add_argument("--num-mag", type=int, default=18)
-    parser.add_argument("--num-iter", type=int, default=5)
-    parser.add_argument("--targets-per-fit", type=int, default=1000)
-    parser.add_argument("--num-optim", type=int, default=5000)
-    parser.add_argument("--seed", type=int, default=11239)
-    args = parser.parse_args()
+    from custom_logger import setup_logger
 
-    data_path = Path(args.data).resolve().absolute()
+    setup_logger(filename=snakemake.log[0])
+
     data = load_data(
-        data_path=data_path,
-        min_nb_transits=args.min_nb_transits,
-        color_range=(args.min_color, args.max_color),
-        mag_range=(args.min_mag, args.max_mag),
+        data_path=snakemake.input[0],
+        min_nb_transits=snakemake.config["noise"]["min_nb_transits"],
+        color_range=(
+            snakemake.config["noise"]["min_color"],
+            snakemake.config["noise"]["max_color"],
+        ),
+        mag_range=(
+            snakemake.config["noise"]["min_mag"],
+            snakemake.config["noise"]["max_mag"],
+        ),
     )
 
     mu, sigma, count = fit_data(
         data,
-        num_mag_bins=args.num_mag,
-        num_color_bins=args.num_color,
-        color_range=(args.min_color, args.max_color),
-        mag_range=(args.min_mag, args.max_mag),
-        num_iter=args.num_iter,
-        targets_per_fit=args.targets_per_fit,
-        num_optim=args.num_optim,
-        seed=args.seed,
+        num_mag_bins=snakemake.config["noise"]["num_mag"],
+        num_color_bins=snakemake.config["noise"]["num_color"],
+        color_range=(
+            snakemake.config["noise"]["min_color"],
+            snakemake.config["noise"]["max_color"],
+        ),
+        mag_range=(
+            snakemake.config["noise"]["min_mag"],
+            snakemake.config["noise"]["max_mag"],
+        ),
+        num_iter=snakemake.config["noise"]["num_iter"],
+        targets_per_fit=snakemake.config["noise"]["targets_per_fit"],
+        num_optim=snakemake.config["noise"]["num_optim"],
+        seed=snakemake.config["noise"]["seed"],
     )
 
     # Save the results
     hdr = fits.Header()
-    hdr["min_tra"] = args.min_nb_transits
-    hdr["min_col"] = args.min_color
-    hdr["max_col"] = args.max_color
-    hdr["num_col"] = args.num_color
-    hdr["min_mag"] = args.min_mag
-    hdr["max_mag"] = args.max_mag
-    hdr["num_mag"] = args.num_mag
-    hdr["num_itr"] = args.num_iter
-    hdr["num_per"] = args.targets_per_fit
-    hdr["num_opt"] = args.num_optim
-    hdr["seed"] = args.seed
+    hdr["min_tra"] = snakemake.config["noise"]["min_nb_transits"]
+    hdr["min_col"] = snakemake.config["noise"]["min_color"]
+    hdr["max_col"] = snakemake.config["noise"]["max_color"]
+    hdr["num_col"] = snakemake.config["noise"]["num_color"]
+    hdr["min_mag"] = snakemake.config["noise"]["min_mag"]
+    hdr["max_mag"] = snakemake.config["noise"]["max_mag"]
+    hdr["num_mag"] = snakemake.config["noise"]["num_mag"]
+    hdr["num_itr"] = snakemake.config["noise"]["num_iter"]
+    hdr["num_per"] = snakemake.config["noise"]["targets_per_fit"]
+    hdr["num_opt"] = snakemake.config["noise"]["num_optim"]
+    hdr["seed"] = snakemake.config["noise"]["seed"]
     fits.HDUList(
         [
             fits.PrimaryHDU(header=hdr),
@@ -230,6 +228,4 @@ if __name__ == "__main__":
             fits.ImageHDU(sigma),
             fits.ImageHDU(count),
         ]
-    ).writeto(
-        data_path / f"rv_uncertainty_grid{args.suffix}.fits", overwrite=True
-    )
+    ).writeto(snakemake.output[0], overwrite=True)
