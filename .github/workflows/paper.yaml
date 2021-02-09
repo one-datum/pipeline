@@ -49,9 +49,10 @@ jobs:
 
       # Generate the figures
       - name: Figures
-        uses: ghcr.io/${{ steps.docker_meta.outputs.tags }}
-        with:
-          entrypoint: paper/figures/make-figures.sh
+        run: docker run --rm -v $(pwd):/workspace --workdir /workspace ghcr.io/${{ steps.docker_meta.outputs.tags }}
+        # uses: ghcr.io/${{ steps.docker_meta.outputs.tags }}
+        # with:
+        #   entrypoint: paper/figures/make-figures.sh
 
       # Compile the PDF using TeXLive
       - name: Paper
