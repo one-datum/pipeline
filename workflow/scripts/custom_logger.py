@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-__all__ = ["CustomLogger"]
+__all__ = ["setup_logger"]
 
-import io
+import sys
+import logging
 
 
-class CustomLogger:
-    def __init__(self, stream: io.IOBase, file: io.IOBase):
-        self.stream = stream
-        self.file = file
+def exception_hook(exc_type, exc_value, exc_traceback):
+    logging.error(
+        "Uncaught exception",
+        exc_info=(exc_type, exc_value, exc_traceback)
+    )
 
-    def write(self, text: str):
-        self.stream.write(text)
-        self.file.write(text)
 
-    def flush(self):
-        self.stream.flush()
+def setup_logger(**kwargs):
+    logging.basicConfig(**kwargs)
+    sys.excepthook = exception_hook
