@@ -4,7 +4,12 @@ What can we infer about an orbit from the Gaia RV or astrometric jitter?
 
 ## Usage
 
+This project includes a pipeline component and a user-facing library.
+For now, this README just covers the pipeline usage which is designed to be run using [snakemake](https://snakemake.readthedocs.io).
+
 ### Environment setup
+
+To get started, you should create a simple conda environment and install _snakemake_ as follows: 
 
 ```bash
 conda install -c conda-forge mamba
@@ -12,72 +17,21 @@ mamba create -n one-datum -c conda-forge bioconda::snakemake-minimal
 conda activate one-datum
 ```
 
-### Inferring per-transit RV uncertainty
-
-```bash
-snakemake infer_noise --cores all --use-conda --conda-frontend mamba
-```
-
-To change the parameters, use
-
-This project is meant to be run containerized (although it'll probably also work
-fine with a standard scientific Python installation). These instructions will
-use [Singularity](https://sylabs.io), but this should also all work using
-[Docker](https://www.docker.com).
-
-To start, clone the project:
+Then you can clone this repository to get the pipeline workflow.
+Note that the results files will be stored in the `results` and `resources` subdirectories so make sure that you run this command on a drive with a fairly large quota (about TBD will be required):
 
 ```bash
 git clone https://github.com/dfm/one-datum.git
 cd one-datum
 ```
 
-### Downloading the data
-
-To download all the necessary data files (using wget), run
-
-```bash
-scripts/download /path/to/data
-```
-
-where `/path/to/data` is the local path where you want to store the data files.
-
-### Running the container
-
-You can run the container using Singularity as follows (on a module system, you
-might need to `module load singularity` first):
-
-```bash
-alias singularity_exec="singularity exec --bind /path/to/data:/data docker://ghcr.io/dfm/one-datum:main"
-singularity_exec python
-```
-
-where `/path/to/data` is the data path that you used above, and on the first
-line we're defining an alias that we'll continue using below. This isn't
-necessary, but it'll make the demos easier to parse. The above command should
-drop you into a Python instance with a correctly configured environment.
-
-### Exploratory analysis with Jupyterlab
-
-This container comes with Jupyterlab installed and you can start a server in
-this environment with:
-
-```bash
-singularity_exec jupyter lab --ip='*'
-```
-
-Since I'm normally running this on a remote machine, I would generally add a
-specific port (`--port=8898`, for example) and then forward that port via SSH to
-my development machine.
-
 ### Inferring per-transit RV uncertainty
 
 This is done on a grid in BP-RP color and apparent G-magnitude. Use
 
 ```bash
-singularity_exec scripts/infer-per-transit-uncert
+snakemake infer_noise --cores all --use-conda --conda-frontend mamba
 ```
 
-to run with the default arguments or add the `--help` flag to see the available
-parameters. This will save a file `rv_uncertainty_grid.fits` in your data
-directory.
+to run with the default arguments.
+This will save a file `rv_uncertainty_grid.fits` in your data directory.
