@@ -9,7 +9,7 @@ For now, this README just covers the pipeline usage which is designed to be run 
 
 ### Environment setup
 
-To get started, you should create a simple conda environment and install _snakemake_ as follows: 
+To get started, you should create a simple conda environment and install _snakemake_ as follows:
 
 ```bash
 conda install -c conda-forge mamba

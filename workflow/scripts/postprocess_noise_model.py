@@ -21,9 +21,7 @@ if __name__ == "__main__":
     color_bins = np.linspace(
         hdr["MIN_COL"], hdr["MAX_COL"], hdr["NUM_COL"] + 1
     )
-    mag_bins = np.linspace(
-        hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1
-    )
+    mag_bins = np.linspace(hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1)
     color_bin_centers = 0.5 * (color_bins[1:] + color_bins[:-1])
     mag_bin_centers = 0.5 * (mag_bins[1:] + mag_bins[:-1])
 
