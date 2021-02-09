@@ -281,3 +281,4 @@ data
 devcontainer.json
 .snakemake
 Untitled*.ipynb
+config/*.yaml

@@ -11,8 +11,11 @@ include: "rules/noise.smk"
 
 rule all:
     input:
-        "resources/data/kepler_dr2_1arcsec.fits"
+        "resources/data/noise-model.fits",
+        "resources/data/SB9public",
+        "resources/data/kepler_dr2_1arcsec.fits",
+        "resources/data/gold_sample.fits"
     log:
         "results/logs/all.log"
-    run:
-        shell("ls")
+    shell:
+        "ls"

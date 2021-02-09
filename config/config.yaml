@@ -1,5 +1,9 @@
 gaia:
-  credentials_file: "/Users/dforeman/.gaia/archive.login"
+  credentials_file: ""
+  # credentials_file: "/path/to/gaia/archive.login"
+  # or...
+  # user = "username"
+  # password = "password"
 
 noise:
   # A suffix to add to the output filename

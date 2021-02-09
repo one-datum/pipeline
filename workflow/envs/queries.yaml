@@ -2,8 +2,8 @@ channels:
   - conda-forge
 dependencies:
   - python =3.9
-  - numpy
-  - matplotlib
-  - jupyter
-  - astropy
-  - astroquery
+  - numpy =1.20
+  - matplotlib =3.3
+  - jupyter =1.0
+  - astropy =4.2
+  - astroquery =0.4

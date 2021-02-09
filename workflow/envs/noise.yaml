@@ -2,8 +2,8 @@ channels:
   - conda-forge
 dependencies:
   - python =3.9
-  - astropy
-  - numpy
-  - pip
+  - numpy =1.20
+  - astropy =4.2
+  - pip =21.0
   - pip:
-      - numpyro
+      - numpyro==0.5.0
