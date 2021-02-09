@@ -16,7 +16,7 @@ jobs:
 
       # Generate the figures
       - name: Figures
-        uses: .
+        uses: ./
         with:
           entrypoint: paper/figures/make-figures.sh
 
