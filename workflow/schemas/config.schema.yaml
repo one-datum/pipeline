@@ -43,3 +43,8 @@ properties:
         type: integer
       num_iter:
         type: integer
+
+      color_smoothing_scale:
+        type: number
+      mag_smoothing_scale:
+        type: number

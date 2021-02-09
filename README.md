@@ -4,6 +4,22 @@ What can we infer about an orbit from the Gaia RV or astrometric jitter?
 
 ## Usage
 
+### Environment setup
+
+```bash
+conda install -c conda-forge mamba
+mamba create -n one-datum -c conda-forge bioconda::snakemake-minimal
+conda activate one-datum
+```
+
+### Inferring per-transit RV uncertainty
+
+```bash
+snakemake infer_noise --cores all --use-conda --conda-frontend mamba
+```
+
+To change the parameters, use
+
 This project is meant to be run containerized (although it'll probably also work
 fine with a standard scientific Python installation). These instructions will
 use [Singularity](https://sylabs.io), but this should also all work using
