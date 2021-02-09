@@ -4,10 +4,11 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags: ["v*"]
 
 jobs:
   paper:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2
@@ -42,7 +43,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: localhost:5000/dfm/one-datum:latest
+          tags: localhost:5000/${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
@@ -66,37 +68,37 @@ jobs:
 
       # Generate the figures
       - name: Figures
-        run: docker run --rm -v $(pwd):/workspace --workdir /workspace localhost:5000/dfm/one-datum:latest --entrypoint paper/figures/make-figures.sh
+        run: docker run --rm -v $(pwd):/workspace --workdir /workspace localhost:5000/${{ steps.docker_meta.outputs.tags }} --entrypoint paper/figures/make-figures.sh
         # uses: ghcr.io/${{ steps.docker_meta.outputs.tags }}
         # with:
         #   entrypoint: paper/figures/make-figures.sh
 
-      # Compile the PDF using TeXLive
-      - name: Paper
-        uses: docker://texlive/texlive:latest
-        with:
-          entrypoint: .github/scripts/compile-paper.sh
+      # # Compile the PDF using TeXLive
+      # - name: Paper
+      #   uses: docker://texlive/texlive:latest
+      #   with:
+      #     entrypoint: .github/scripts/compile-paper.sh
 
-      # Upload the PDF and figures as an artifact. This is useful for PRs where the results
-      # don't get pushed to a branch
-      - uses: actions/upload-artifact@v2
-        with:
-          name: paper
-          path: |
-            paper/one-datum.pdf
-            paper/figures/githash.tex
-            paper/figures/*.pdf
+      # # Upload the PDF and figures as an artifact. This is useful for PRs where the results
+      # # don't get pushed to a branch
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: paper
+      #     path: |
+      #       paper/one-datum.pdf
+      #       paper/figures/githash.tex
+      #       paper/figures/*.pdf
 
-      # If this isn't a pull request, force push the PDF to an orphan branch
-      - name: Push compiled PDF
-        if: ${{ github.event_name != 'pull_request' }}
-        continue-on-error: true
-        run: |
-          git checkout --orphan ${GITHUB_REF##*/}-pdf
-          git rm --cached -rf .
-          git add -f LICENSE
-          git add -f paper/one-datum.pdf
-          git add -f paper/figures/githash.tex
-          git add -f paper/figures/*.pdf
-          git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "updating pdf"
-          git push --force https://github.com/$GITHUB_REPOSITORY ${GITHUB_REF##*/}-pdf
+      # # If this isn't a pull request, force push the PDF to an orphan branch
+      # - name: Push compiled PDF
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   continue-on-error: true
+      #   run: |
+      #     git checkout --orphan ${GITHUB_REF##*/}-pdf
+      #     git rm --cached -rf .
+      #     git add -f LICENSE
+      #     git add -f paper/one-datum.pdf
+      #     git add -f paper/figures/githash.tex
+      #     git add -f paper/figures/*.pdf
+      #     git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "updating pdf"
+      #     git push --force https://github.com/$GITHUB_REPOSITORY ${GITHUB_REF##*/}-pdf
