@@ -80,7 +80,7 @@ if __name__ == "__main__":
             [
                 fits.PrimaryHDU(header=hdr),
                 fits.ImageHDU(mu_smooth),
-                fits.ImageHDU(np.isfinite(mu_base)),
+                fits.ImageHDU(np.isfinite(mu_base).astype(np.int32)),
                 fits.ImageHDU(count),
             ]
         ).writeto(snakemake.output[0], overwrite=True)
