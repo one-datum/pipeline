@@ -25,6 +25,7 @@
 \affiliation{Center for Computational Astrophysics, Flatiron Institute, New York, NY}
 
 \author{TBD}
+\noaffiliation{}
 
 \begin{abstract}
   This is a paper about unresolved binaries in Gaia RVs.
@@ -43,7 +44,35 @@ These measurements are useful for many applications, including \emph{(a)} discov
 
 \section{The basic idea}
 
+Comment on RV error vs sample variance.
+
 \section{Estimating the per-transit radial velocity precision}
+
+A key element of our analysis is that we have a reasonably accurate estimate of the per-transit radial velocity measurement uncertainty.
+The \Gaia\ pipeline does not release a public estimate of this, but it can be estimated from the data in the public catalog.
+To make this estimate, the key assumption that we make is that the RV uncertainty depends only on a target's (reddened) $G_\mathrm{BP} - G_\mathrm{RP}$ color and apparent $G$-band magnitude $m_\mathrm{G}$.
+While this is certainly not the full story, we discuss several validation experiments below and argue that this is not an overly restrictive assumption given the precision of our measurements.
+
+To make this inference we build a probabilistic model for the reported distribution of ``radial velocity errors'' for a set of $N = 1000$ stars with similar colors and magnitudes.
+In other words, our dataset is $\{{s_n}^2,\,k_n\}_{n=1}^N$ where ${s_n}^2$ is the RV sample variance (as discussed above) for target $n$ and $k_n$ is the number of RV transits used to compute ${s_n}^2$.
+Then, we model the statistic
+\begin{eqnarray}
+  \label{eq:rv-uncert-stat}
+  X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2 + {\delta_n}^2}
+\end{eqnarray}
+as being $\chi^2$-distributed with $k_n - 1$ degrees of freedom; where the shared measurement uncertainty $\sigma_0$ and the per-target excess noise $\delta_n$ are parameters of the model.
+This means that a model for $N$ targets has $N + 1$ parameters, but we will show that, given the right constraints, this produces sensible marginal estimates of $\sigma_0$ which is our primary quantity of interest.
+
+An intuition for the model defined by Equation~\ref{eq:rv-uncert-stat} can be gained by considering the case of a collection of $N$ targets known (by some other means) to be single stars without any excess systematic noise or outliers.
+In that case, for Gaussian distributed per-transit RV uncertainty, we would expect the quantity
+\begin{eqnarray}
+  \label{eq:rv-uncert-stat-basic}
+  X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2}
+\end{eqnarray}
+to be $\chi^2$-distributed with $k_n - 1$ degrees of freedom.
+However, in reality, some fraction of our targets are actually multiple star systems and some others might be outliers for some other reason.
+Therefore, we add the excess noise parameters in Equation~\ref{eq:rv-uncert-stat} to account for these effects.
+
 
 \section{Bulk radial velocity inference}
 
