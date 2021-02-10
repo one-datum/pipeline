@@ -17,6 +17,7 @@
 # +
 import numpy as np
 from scipy import stats
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from jax import random
@@ -74,11 +75,11 @@ def generate_dataset(
     return rv_nb_transits, sample_variance
 
 
-np.random.seed(210120739)
 true_sigma = 1.0
-binary_fraction = np.linspace(0, 0.5, 12)
+binary_fraction = np.linspace(0, 0.5, 10)
 datasets = []
 for bf in binary_fraction:
+    np.random.seed(251986)
     data = generate_dataset(true_sigma=true_sigma, binary_fraction=bf)
     datasets.append(data)
 
@@ -132,11 +133,20 @@ fig.subplots_adjust(wspace=0.07)
 
 ax = axes[0]
 x = np.linspace(-2, 4, 500)
-for bf, data in zip(binary_fraction, datasets):
-    kde = stats.gaussian_kde(np.log10(data[1]))
-    ax.plot(x, kde(x), lw=1, color=mpl.cm.viridis(bf / binary_fraction.max()))
+bins = np.linspace(-2, 4, 15)
+for n, (bf, data) in enumerate(zip(binary_fraction, datasets)):
+    ax.hist(
+        np.log10(data[1]),
+        bins,
+        color=mpl.cm.viridis(1 - bf / binary_fraction.max()),
+        lw=1,
+        histtype="step",
+        zorder=n,
+    )
+#     kde = stats.gaussian_kde(np.log10(data[1]))
+#     ax.plot(x, len(data[1]) * kde(x) * (bins[1] - bins[0]), lw=0.5, color=mpl.cm.viridis(1 - bf / binary_fraction.max()), zorder=n)
 ax.set_yscale("log")
-ax.set_ylim(1e-3, 3e0)
+ax.set_ylim(1, 1e3)
 ax.set_xlim(x.min(), x.max())
 ax.set_xlabel(r"measured, $\log_{10} s^2$  [km$^2$/s$^2$]")
 ax.set_ylabel("count")
@@ -151,7 +161,7 @@ for bf, p in zip(binary_fraction, params):
         xp,
         np.exp(-0.5 * ((x - mean) / std) ** 2) / np.sqrt(2 * np.pi * std ** 2),
         lw=1,
-        color=mpl.cm.viridis(bf / binary_fraction.max()),
+        color=mpl.cm.viridis(1 - bf / binary_fraction.max()),
     )
 ax.axvline(np.log10(true_sigma), lw=3.0, alpha=0.2, color="k")
 ax.set_yticks([])

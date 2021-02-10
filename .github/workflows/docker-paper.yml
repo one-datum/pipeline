@@ -74,6 +74,7 @@ jobs:
             paper/one-datum.pdf
             paper/figures/githash.tex
             paper/figures/*.pdf
+            paper/figures/*.ipynb
 
       # If this isn't a pull request, force push the PDF to an orphan branch
       - name: Push compiled PDF
