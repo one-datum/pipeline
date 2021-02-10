@@ -1,16 +1,18 @@
-FROM python:3.8
-WORKDIR /code
+FROM continuumio/miniconda3:latest
 
+# Install fonts for figures
 RUN apt-get update \
  && apt-get install -y \
     fonts-liberation \
  && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+# Install conda-merge for building the environment
 RUN python -m pip install -U pip \
- && python -m pip install -r requirements.txt
+ && python -m pip install conda-merge
 
-COPY . /build
-RUN python -m pip install /build
-
-CMD [ "python", "--version" ]
+# Set up the conda environment
+COPY workflow/envs /envs
+RUN conda-merge /envs/* > /envs/environment.yml \
+ && cat /envs/environment.yml \
+ && conda install -c conda-forge mamba \
+ && mamba env create --name one-datum --file /envs/environment.yml

@@ -27,6 +27,11 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     include_package_data=True,
-    install_requires=read("requirements.txt").splitlines(),
+    install_requires=[
+        "astropy",
+        "kepler.py",
+        "numpy",
+        "scipy",
+    ],
     extras_require={"test": "pytest"},
 )

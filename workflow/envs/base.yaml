@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+dependencies:
+  - compilers =1.1
+  - bioconda::snakemake-minimal =5.32
+  - pip =21.0
+  - pip:
+      - kepler.py==0.0.6

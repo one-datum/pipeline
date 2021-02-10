@@ -1,9 +1,0 @@
-numpy
-scipy
-matplotlib
-astropy
-numpyro
-tqdm
-jupyterlab
-kepler.py
-corner

@@ -1,0 +1,6 @@
+.*
+config
+notebooks
+resources
+results
+!.git

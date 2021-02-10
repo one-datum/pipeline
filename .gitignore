@@ -282,3 +282,5 @@ devcontainer.json
 .snakemake
 Untitled*.ipynb
 config/*.yaml
+dist
+build

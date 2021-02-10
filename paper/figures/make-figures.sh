@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+set -e
+
+. /opt/conda/etc/profile.d/conda.sh
+conda activate one-datum
+
+# First, install the package
+python -m pip install -e .
 
 cd paper/figures
 
