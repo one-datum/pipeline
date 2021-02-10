@@ -4,7 +4,7 @@ rule infer_noise:
     output:
         expand("resources/data/noise-model{suffix}.fits", suffix=config["noise"]["suffix"])
     conda:
-        "../envs/noise.yaml"
+        "../envs/environment.yml"
     log:
         "results/logs/infer-noise.log"
     script:
@@ -16,7 +16,7 @@ rule postprocess_noise_model:
     output:
         expand("src/one_datum/data/noise-model{suffix}.fits", suffix=config["noise"]["suffix"])
     conda:
-        "../envs/noise.yaml"
+        "../envs/environment.yml"
     log:
         "results/logs/postprocess-noise-model.log"
     script:

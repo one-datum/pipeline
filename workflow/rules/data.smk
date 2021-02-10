@@ -31,7 +31,7 @@ rule sb9_xmatch:
     output:
         "resources/data/sb9-gaia-xmatch.fits"
     conda:
-        "../envs/queries.yaml"
+        "../envs/environment.yml"
     log:
         notebook="results/logs/sb9-gaia-xmatch.ipynb"
     notebook:
