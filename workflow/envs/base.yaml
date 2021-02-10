@@ -1,6 +1,10 @@
 channels:
   - conda-forge
 dependencies:
+  - python =3.9
+  - astropy =4.2
+  - numpy =1.20
+  - scipy =1.6
   - compilers =1.1
   - bioconda::snakemake-minimal =5.32
   - pip =21.0

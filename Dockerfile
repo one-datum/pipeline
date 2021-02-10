@@ -1,4 +1,5 @@
 FROM continuumio/miniconda3:latest
+LABEL MAINTAINER "Dan Foreman-Mackey <foreman.mackey@gmail.com>"
 
 # Install fonts for figures
 RUN apt-get update \
