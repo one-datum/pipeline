@@ -87,5 +87,6 @@ jobs:
           git add -f paper/one-datum.pdf
           git add -f paper/figures/githash.tex
           git add -f paper/figures/*.pdf
+          git add -f paper/figures/*.ipynb
           git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "updating pdf"
           git push --force https://github.com/$GITHUB_REPOSITORY ${GITHUB_REF##*/}-pdf
