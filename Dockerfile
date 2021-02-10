@@ -23,6 +23,10 @@ COPY workflow/envs/environment.yml environment.yml
 RUN $MAMBA_ROOT_PREFIX/bin/mamba env update --file environment.yml --prefix $MAMBA_ROOT_PREFIX \
  && rm environment.yml
 
+COPY . /build
+RUN $MAMBA_ROOT_PREFIX/bin/python -m pip install /build \
+ && rm -rf /build
+
 # # Installing pipeline dependencies
 # COPY workflow/envs/requirements.txt .
 # RUN python -m pip install -U pip \

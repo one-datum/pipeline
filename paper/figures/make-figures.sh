@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# First, install the package
-python -m pip install -e .
-
 cd paper/figures
 
 # Save the git commit hash
