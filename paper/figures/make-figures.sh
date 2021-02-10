@@ -7,4 +7,4 @@ cd paper/figures
 echo "\\newcommand{\\githash}{$(git rev-parse HEAD)}" > githash.tex
 
 # Generate the figures
-python demo_figure.py
+jupytext --to ipynb --execute *.py
