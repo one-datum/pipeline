@@ -15,9 +15,9 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: slim-${{ runner.os }}-buildx-${{ github.sha }}
+          key: mamba-${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-            slim-${{ runner.os }}-buildx-
+            mamba-${{ runner.os }}-buildx-
       - name: Docker meta
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
