@@ -1,10 +1,12 @@
 name: Paper
 
 on:
-  pull_request:
-  push:
-    branches: [main]
-    tags: ["v*"]
+  workflow_run:
+    workflows: ["Docker"]
+    branches:
+      - main
+    types:
+      - completed
 
 jobs:
   paper:
@@ -16,7 +18,8 @@ jobs:
 
       # Generate the figures
       - name: Figures
-        uses: ./
+        uses: docker://ghcr.io/dfm/one-datum:main
+        # uses: ./
         with:
           entrypoint: paper/figures/make-figures.sh
 
