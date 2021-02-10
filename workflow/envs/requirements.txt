@@ -1,0 +1,8 @@
+numpy==1.20.*
+scipy==1.6.*
+matplotlib==3.3.*
+jupyter==1.0.*
+astropy==4.2.*
+astroquery==0.4.*
+kepler.py==0.0.6
+numpyro==0.5.0
