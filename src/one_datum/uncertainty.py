@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all__ = ["get_uncertainty_model"]
+__all__ = ["get_filename", "get_uncertainty_model"]
 
 from typing import Optional
 
@@ -11,16 +11,14 @@ from scipy.interpolate import RegularGridInterpolator
 from scipy.ndimage import gaussian_filter
 
 
+def get_filename() -> str:
+    return pkg_resources.resource_filename(__name__, "data/noise-model.fits")
+
+
 def get_uncertainty_model(
-    *,
-    color_smoothing_scale: float = 0.1,
-    mag_smoothing_scale: float = 0.1,
-    bounds_error: bool = False,
-    fill_value: Optional[float] = None
+    *, bounds_error: bool = False, fill_value: Optional[float] = None
 ) -> RegularGridInterpolator:
-    filename = pkg_resources.resource_filename(
-        __name__, "data/rv_uncertainty_grid.fits"
-    )
+    filename = get_filename()
 
     with fits.open(filename) as f:
         hdr = f[0].header
