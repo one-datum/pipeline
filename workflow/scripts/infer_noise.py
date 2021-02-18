@@ -100,7 +100,7 @@ def fit_data(
     targets_per_fit: int = 1000,
     num_optim: int = 5000,
     seed: int = 11239,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     # Parse data
     num_transit = np.ascontiguousarray(
         data["dr2_rv_nb_transits"], dtype=np.int32

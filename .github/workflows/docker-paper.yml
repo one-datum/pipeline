@@ -52,18 +52,28 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
+          
+      - uses: actions/cache@v2
+        with:
+          path: |
+            cache/Tectonic/*
+            !cache/Tectonic/formats
+          key: tectonic-cache-${{ github.sha }}
+          restore-keys: |
+            tectonic-cache-
+            
       # Generate the figures
       - name: Figures
         uses: docker://ghcr.io/dfm/one-datum:main
         with:
           entrypoint: paper/figures/make-figures.sh
 
-      # Compile the PDF using TeXLive
-      - name: Paper
-        uses: docker://texlive/texlive:latest
+      # Compile the PDF
+      - uses: docker://ghcr.io/dfm/tectonic-image:main
         with:
-          entrypoint: .github/scripts/compile-paper.sh
+          args: paper/one-datum.tex
+        env:
+          XDG_CACHE_HOME: /github/workspace/cache
 
       # Upload the PDF and figures as an artifact. This is useful for PRs where the results
       # don't get pushed to a branch
@@ -76,17 +86,24 @@ jobs:
             paper/figures/*.pdf
             paper/figures/*.ipynb
 
-      # If this isn't a pull request, force push the PDF to an orphan branch
-      - name: Push compiled PDF
+      - uses: dfm/force-push-branch-action@v1
         if: ${{ github.event_name != 'pull_request' }}
-        continue-on-error: true
-        run: |
-          git checkout --orphan ${GITHUB_REF##*/}-pdf
-          git rm --cached -rf .
-          git add -f LICENSE
-          git add -f paper/one-datum.pdf
-          git add -f paper/figures/githash.tex
-          git add -f paper/figures/*.pdf
-          git add -f paper/figures/*.ipynb
-          git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "updating pdf"
-          git push --force https://github.com/$GITHUB_REPOSITORY ${GITHUB_REF##*/}-pdf
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          branch-suffix: "-pdf"
+          path: paper
+
+#       # If this isn't a pull request, force push the PDF to an orphan branch
+#       - name: Push compiled PDF
+#         if: ${{ github.event_name != 'pull_request' }}
+#         continue-on-error: true
+#         run: |
+#           git checkout --orphan ${GITHUB_REF##*/}-pdf
+#           git rm --cached -rf .
+#           git add -f LICENSE
+#           git add -f paper/one-datum.pdf
+#           git add -f paper/figures/githash.tex
+#           git add -f paper/figures/*.pdf
+#           git add -f paper/figures/*.ipynb
+#           git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "updating pdf"
+#           git push --force https://github.com/$GITHUB_REPOSITORY ${GITHUB_REF##*/}-pdf
