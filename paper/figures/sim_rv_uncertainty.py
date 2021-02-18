@@ -5,14 +5,12 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.10.0
+#       jupytext_version: 1.10.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
-
-# %matplotlib inline
 
 # +
 import numpy as np
@@ -93,8 +91,10 @@ def model(num_transit, sample_variance):
         sample_shape=(len(sample_variance),),
     )
     sigma2 = jnp.exp(2 * log_sigma0) + jnp.exp(2 * log_dsigma)
-    stat = sample_variance * (num_transit - 1) / sigma2
-    numpyro.sample("obs", dist.Chi2(num_transit + 1), obs=stat)
+    stat = sample_variance * (num_transit - 1)
+    numpyro.sample(
+        "obs", dist.Gamma(0.5 * (num_transit - 1), 0.5 / sigma2), obs=stat
+    )
 
 
 def guide(num_transit, sample_variance):
@@ -128,12 +128,12 @@ for n, data in enumerate(datasets):
     params.append(svi_result.params)
 
 # +
-fig, axes = plt.subplots(1, 2, figsize=(8, 3))
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 fig.subplots_adjust(wspace=0.07)
 
 ax = axes[0]
 x = np.linspace(-2, 4, 500)
-bins = np.linspace(-2, 4, 15)
+bins = np.linspace(-2, 4, 20)
 for n, (bf, data) in enumerate(zip(binary_fraction, datasets)):
     ax.hist(
         np.log10(data[1]),

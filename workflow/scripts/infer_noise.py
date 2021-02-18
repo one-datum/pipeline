@@ -56,8 +56,10 @@ def setup_model() -> SVI:
             sample_shape=(len(sample_variance),),
         )
         sigma2 = jnp.exp(2 * log_sigma0) + jnp.exp(2 * log_dsigma)
-        stat = sample_variance * (num_transit - 1) / sigma2
-        numpyro.sample("obs", dist.Chi2(num_transit + 1), obs=stat)
+        stat = sample_variance * (num_transit - 1)
+        numpyro.sample(
+            "obs", dist.Gamma(0.5 * (num_transit - 1), 0.5 / sigma2), obs=stat
+        )
 
     def guide(num_transit, sample_variance):
         mu_log_sigma0 = numpyro.param(
