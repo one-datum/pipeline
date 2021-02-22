@@ -14,21 +14,13 @@
 
 # +
 import numpy as np
-from scipy import stats
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from jax import random
-from jax.config import config
-import jax.numpy as jnp
-
-import numpyro
-import numpyro.distributions as dist
-from numpyro.infer import SVI, Trace_ELBO
-
 import kepler
 
-config.update("jax_enable_x64", True)
+from one_datum.noise_model import setup_model
 
 
 # -
@@ -82,46 +74,7 @@ for bf in binary_fraction:
     datasets.append(data)
 
 
-# +
-def model(num_transit, sample_variance):
-    log_sigma0 = numpyro.sample("log_sigma0", dist.Normal(0.0, 100.0))
-    log_dsigma = numpyro.sample(
-        "log_dsigma",
-        dist.Normal(0.0, 100.0),
-        sample_shape=(len(sample_variance),),
-    )
-    sigma2 = jnp.exp(2 * log_sigma0) + jnp.exp(2 * log_dsigma)
-    stat = sample_variance * (num_transit - 1)
-    numpyro.sample(
-        "obs", dist.Gamma(0.5 * (num_transit - 1), 0.5 / sigma2), obs=stat
-    )
-
-
-def guide(num_transit, sample_variance):
-    mu_log_sigma0 = numpyro.param(
-        "mu_log_sigma0", 0.5 * np.log(np.median(sample_variance))
-    )
-    sigma_log_sigma0 = numpyro.param(
-        "sigma_log_sigma0", 1.0, constraint=dist.constraints.positive
-    )
-
-    mu_log_dsigma = numpyro.param(
-        "mu_log_dsigma", 0.5 * np.log(sample_variance)
-    )
-    sigma_log_dsigma = numpyro.param(
-        "sigma_log_dsigma",
-        np.ones_like(sample_variance),
-        constraint=dist.constraints.positive,
-    )
-
-    numpyro.sample("log_sigma0", dist.Normal(mu_log_sigma0, sigma_log_sigma0))
-    numpyro.sample("log_dsigma", dist.Normal(mu_log_dsigma, sigma_log_dsigma))
-
-
-optimizer = numpyro.optim.Adam(step_size=0.1)
-svi = SVI(model, guide, optimizer, loss=Trace_ELBO())
-# -
-
+svi = setup_model()
 params = []
 for n, data in enumerate(datasets):
     svi_result = svi.run(random.PRNGKey(1233 + n), 5000, *data)
@@ -143,8 +96,6 @@ for n, (bf, data) in enumerate(zip(binary_fraction, datasets)):
         histtype="step",
         zorder=n,
     )
-#     kde = stats.gaussian_kde(np.log10(data[1]))
-#     ax.plot(x, len(data[1]) * kde(x) * (bins[1] - bins[0]), lw=0.5, color=mpl.cm.viridis(1 - bf / binary_fraction.max()), zorder=n)
 ax.set_yscale("log")
 ax.set_ylim(1, 1e3)
 ax.set_xlim(x.min(), x.max())
@@ -170,4 +121,3 @@ ax.set_xlim(xp.min(), xp.max())
 ax.set_title("inferred per-transit uncertainty")
 
 fig.savefig("sim_rv_uncertainty.pdf", bbox_inches="tight")
-# -

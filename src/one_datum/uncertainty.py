@@ -8,7 +8,6 @@ import numpy as np
 import pkg_resources
 from astropy.io import fits
 from scipy.interpolate import RegularGridInterpolator
-from scipy.ndimage import gaussian_filter
 
 
 def get_filename() -> str:
@@ -28,17 +27,12 @@ def get_uncertainty_model(
         hdr["MIN_COL"], hdr["MAX_COL"], hdr["NUM_COL"] + 1
     )
     mag_bins = np.linspace(hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1)
-
-    dc = color_smoothing_scale / (color_bins[1] - color_bins[0])
-    dm = mag_smoothing_scale / (mag_bins[1] - mag_bins[0])
-
-    ln_sigma_model = gaussian_filter(np.mean(mu, axis=-1), (dm, dc))
     return RegularGridInterpolator(
         [
             0.5 * (mag_bins[1:] + mag_bins[:-1]),
             0.5 * (color_bins[1:] + color_bins[:-1]),
         ],
-        ln_sigma_model,
+        mu,
         bounds_error=bounds_error,
         fill_value=fill_value,
     )
