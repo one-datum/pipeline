@@ -17,7 +17,7 @@ MAX_MAG: float = 16.0
 
 
 def load_data(
-    data_path,
+    data_path: str,
     *,
     min_nb_transits: int = 3,
     color_range: Tuple[float, float] = (MIN_COLOR, MAX_COLOR),
