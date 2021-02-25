@@ -24,7 +24,7 @@ rule postprocess_noise_model:
 
 rule apply_noise_model:
     input:
-        "resources/data/edr3-rv-good-plx-result.fits.gz"
+        "resources/data/edr3-rv-good-plx-result.fits.gz",
         expand("src/one_datum/data/noise-model{suffix}.fits", suffix=config["noise"]["suffix"])
     output:
         expand("resources/data/edr3-rv-good-plx-plus-semiamp{suffix}.fits.gz", suffix=config["noise"]["suffix"])
