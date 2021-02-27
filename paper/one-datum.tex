@@ -9,7 +9,7 @@
 \newcommand{\project}[1]{\textsl{#1}}
 \newcommand{\acronym}[1]{{\small{#1}}}
 
-\newcommand{\Gaia}{\project{Gaia}]}
+\newcommand{\Gaia}{\project{Gaia}}
 
 \shorttitle{Sample article}
 \shortauthors{Foreman-Mackey et al.}
@@ -41,7 +41,6 @@ It has been previously demonstrated that the published radial velocity and astro
 In this paper, however, we demonstrate that it is possible to use the reported radial velocity errors and a probabilistic model to place constraints on the radial velocity amplitude and, in some cases, some other properties of the orbit.
 These measurements are useful for many applications, including \emph{(a)} discovering black holes, \emph{(b)} vetting transiting exoplanet discoveries, \emph{(c)} measuring the masses of a large sample of eclipsing binaries, \emph{(d)} quantify the binary fraction across the H--R diagram, and \emph{(e)} informing constraints on exoplanet formation and evolution theory, to name a few.
 
-
 \section{The basic idea}
 
 Comment on RV error vs sample variance.
@@ -53,26 +52,56 @@ The \Gaia\ pipeline does not release a public estimate of this, but it can be es
 To make this estimate, the key assumption that we make is that the RV uncertainty depends only on a target's (reddened) $G_\mathrm{BP} - G_\mathrm{RP}$ color and apparent $G$-band magnitude $m_\mathrm{G}$.
 While this is certainly not the full story, we discuss several validation experiments below and argue that this is not an overly restrictive assumption given the precision of our measurements.
 
-To make this inference we build a probabilistic model for the reported distribution of ``radial velocity errors'' for a set of $N = 1000$ stars with similar colors and magnitudes.
-In other words, our dataset is $\{{s_n}^2,\,k_n\}_{n=1}^N$ where ${s_n}^2$ is the RV sample variance (as discussed above) for target $n$ and $k_n$ is the number of RV transits used to compute ${s_n}^2$.
-Then, we model the statistic
+To build intuition, let's start with a simplified toy model that we will extend below.
+If we have a catalog of $N$ targets where only the sample variance ${s_n}^2$ of the RV time series and the number of observations $T_n$ of target $n$.
+For our initial toy model, let's also assume that we know that the only source of noise is the per-transit measurement uncertainty, which we will assume to be Gaussian.
+In this case, the generative model is
 \begin{eqnarray}
-  \label{eq:rv-uncert-stat}
-  X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2 + {\delta_n}^2}
+  x_{n,t} &\sim& \mathcal{N}(\mu_n,\,\sigma^2) \\
+  {s_n}^2 &=& \frac{1}{T_n - 1}\sum_{t=1}^{T_n} \left(x_{n,t} - \left< x_{n,t} \right>\right)^2
 \end{eqnarray}
-as being $\chi^2$-distributed with $k_n - 1$ degrees of freedom; where the shared measurement uncertainty $\sigma_0$ and the per-target excess noise $\delta_n$ are parameters of the model.
-This means that a model for $N$ targets has $N + 1$ parameters, but we will show that, given the right constraints, this produces sensible marginal estimates of $\sigma_0$ which is our primary quantity of interest.
-
-An intuition for the model defined by Equation~\ref{eq:rv-uncert-stat} can be gained by considering the case of a collection of $N$ targets known (by some other means) to be single stars without any excess systematic noise or outliers.
-In that case, for Gaussian distributed per-transit RV uncertainty, we would expect the quantity
+where $x_{n,t}$ are the individual RV measurements for target $n$ at time $t$ and
 \begin{eqnarray}
-  \label{eq:rv-uncert-stat-basic}
-  X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2}
+  \left< x_{n,t} \right> &\equiv& \frac{1}{T_n}\sum_{t=1}^{T_n}x_{n,t} \quad.
 \end{eqnarray}
-to be $\chi^2$-distributed with $k_n - 1$ degrees of freedom.
-However, in reality, some fraction of our targets are actually multiple star systems and some others might be outliers for some other reason.
-Therefore, we add the excess noise parameters in Equation~\ref{eq:rv-uncert-stat} to account for these effects.
+In this model, our data are the empirical sample variances ${s_n}^2$ and we want to infer the underlying variance $\sigma^2$ that is shared by all targets $n$.
+In other words, we must evaluate the likelihood function
+\begin{eqnarray}
+  \mathcal{L}(\sigma^2;\,\left\{{s_n}^2\right\}) &=& p(\left\{{s_n}^2\right\}\,|\,\sigma^2) \\
+  &=& \prod_{n=1}^N\int p({s_n}^2\,|\,x_{n,t})\,p(x_{n,t}\,|\,\sigma^2) \mathrm{d}x_{n,t}\quad.
+\end{eqnarray}
+From this equation we might recognize that the statistic $X_n$
+\begin{eqnarray}
+  X_n &=& \frac{(N - 1)\,{s_n}^2}{s^2}
+\end{eqnarray}
+is chi-squared distributed with $T_n - 1$ degrees of freedom, but this doesn't directly define the correct likelihood function since it is not properly normalized.
+Instead, the likelihood function is defined by
+\begin{eqnarray}
+  (N - 1)\,{s_n}^2 &\sim& \Gamma\left(\frac{T_n - 1}{2},\,2\,\sigma^2\right)
+\end{eqnarray}
+where $\Gamma(a,\,b)$ is a gamma distribution with shape $a$ and scale $b$.
+This follows from the relationship between the chi-squared and gamma distributions.
 
+
+% To make this inference we build a probabilistic model for the reported distribution of ``radial velocity errors'' for a set of $N = 1000$ stars with similar colors and magnitudes.
+% In other words, our dataset is $\{{s_n}^2,\,k_n\}_{n=1}^N$ where ${s_n}^2$ is the RV sample variance (as discussed above) for target $n$ and $k_n$ is the number of RV transits used to compute ${s_n}^2$.
+% Then, we model the statistic
+% \begin{eqnarray}
+%   \label{eq:rv-uncert-stat}
+%   X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2 + {\delta_n}^2}
+% \end{eqnarray}
+% as being $\chi^2$-distributed with $k_n - 1$ degrees of freedom; where the shared measurement uncertainty $\sigma_0$ and the per-target excess noise $\delta_n$ are parameters of the model.
+% This means that a model for $N$ targets has $N + 1$ parameters, but we will show that, given the right constraints, this produces sensible marginal estimates of $\sigma_0$ which is our primary quantity of interest.
+
+% An intuition for the model defined by Equation~\ref{eq:rv-uncert-stat} can be gained by considering the case of a collection of $N$ targets known (by some other means) to be single stars without any excess systematic noise or outliers.
+% In that case, for Gaussian distributed per-transit RV uncertainty, we would expect the quantity
+% \begin{eqnarray}
+%   \label{eq:rv-uncert-stat-basic}
+%   X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2}
+% \end{eqnarray}
+% to be $\chi^2$-distributed with $k_n - 1$ degrees of freedom.
+% However, in reality, some fraction of our targets are actually multiple star systems and some others might be outliers for some other reason.
+% Therefore, we add the excess noise parameters in Equation~\ref{eq:rv-uncert-stat} to account for these effects.
 
 \section{Bulk radial velocity inference}
 
