@@ -2,6 +2,7 @@ channels:
   - conda-forge
 dependencies:
   - python =3.9
+  - curl =7.71.1
   - numpy =1.20
   - scipy =1.6
   - matplotlib =3.3
