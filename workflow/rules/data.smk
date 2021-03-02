@@ -1,5 +1,5 @@
 URLS = {
-    "gold_sample.fits": "https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/gold_sample.fits",
+    "gold_sample.fits": "https://users.flatironinstitute.org/~apricewhelan/data/apogee/clean-unimodal-turbo20-beta.fits",
     "edr3-rv-good-plx-result.fits.gz": "https://users.flatironinstitute.org/~apricewhelan/data/edr3/edr3-rv-good-plx-result.fits.gz",
     "kepler_dr2_1arcsec.fits": "https://www.dropbox.com/s/xo1n12fxzgzybny/kepler_dr2_1arcsec.fits?dl=1",
     "SB9public.tar.gz": "https://sb9.astro.ulb.ac.be/SB9public.tar.gz",
