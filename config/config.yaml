@@ -1,4 +1,7 @@
 dataset_name: "edr3"
+base_table_filename: "resources/data/edr3-rv-good-plx-result.fits.gz"
+install_noise_model: true
+noise_config_file: "config/noise.yaml"
 
 gaia:
   credentials_file: ""
@@ -7,34 +10,7 @@ gaia:
   # user = "username"
   # password = "password"
 
+# Noise model postprocessing parameters
 noise:
-  base_table_filename: "resources/data/edr3-rv-good-plx-result.fits.gz"
-  install_noise_model: true
-
-  # A random number seed
-  seed: 11239
-
-  # Minimum number of RVS transits required to estimate the noise model
-  min_nb_transits: 3
-
-  # The color and magnitude grid specification
-  min_color: 0.0
-  max_color: 5.5
-  num_color: 20
-
-  min_mag: 4.5
-  max_mag: 16.0
-  num_mag: 18
-
-  # The number of targets to fit at once
-  targets_per_fit: 1000
-
-  # The number of SVI optimization steps to run
-  num_optim: 5000
-
-  # The number of random subsets to execute per inference
-  num_iter: 5
-
-  # Postprocessing parameters
   color_smoothing_scale: 0.25
   mag_smoothing_scale: 0.5

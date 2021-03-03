@@ -8,6 +8,6 @@ rule bulk_inference:
     conda:
         "../envs/environment.yml"
     log:
-        "results/logs/{dataset}/bulk/bulk-inference.log"
-    script:
-        "../scripts/apply_noise_model.py"
+        stderr="results/logs/{dataset}/bulk/bulk-inference.log"
+    shell:
+        "python workflow/scripts/apply_noise_model.py --input {input} --output {output} &> {log}"

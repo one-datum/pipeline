@@ -136,15 +136,17 @@ def process_shared(
 
 
 if __name__ == "__main__":
+    import argparse
     import time
     import tracemalloc
 
-    from custom_logger import setup_logger
-
-    setup_logger(filename=snakemake.log[0])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input", required=True, type=str)
+    parser.add_argument("-o", "--output", required=True, type=str)
+    args = parser.parse_args()
 
     block_size = 10
-    filename = snakemake.input[0]
+    filename = args.input
 
     print("Loading data...")
     data = load_data(filename)
@@ -208,4 +210,4 @@ if __name__ == "__main__":
         + [f"noise_semiamp_p{(100 * q):.0f}" for q in QUANTILES],
         [ln_sigma] + [np.exp(ln_semiamp[:, q]) for q in range(len(QUANTILES))],
     )
-    fitsio.write(snakemake.output[0], data, clobber=True)
+    fitsio.write(args.output, data, clobber=True)

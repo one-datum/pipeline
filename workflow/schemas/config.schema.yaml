@@ -5,6 +5,13 @@ type: object
 properties:
   dataset_name:
     type: string
+  base_table_filename:
+    type: string
+
+  noise_config_file:
+    type: string
+  install_noise_model:
+    type: boolean
 
   gaia:
     type: object
@@ -15,42 +22,3 @@ properties:
         type: string
       password:
         type: string
-
-  noise:
-    type: object
-    properties:
-      base_table_filename:
-        type: string
-      install_noise_model:
-        type: boolean
-
-      seed:
-        type: integer
-      min_nb_transits:
-        type: integer
-
-      min_color:
-        type: number
-      max_color:
-        type: number
-      num_color:
-        type: integer
-
-      min_mag:
-        type: number
-      max_mag:
-        type: number
-      num_mag:
-        type: integer
-
-      targets_per_fit:
-        type: integer
-      num_optim:
-        type: integer
-      num_iter:
-        type: integer
-
-      color_smoothing_scale:
-        type: number
-      mag_smoothing_scale:
-        type: number

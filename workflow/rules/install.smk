@@ -1,6 +1,8 @@
 # A rule to install the working copy of this package
 
 rule install_local:
+    input:
+        "workflow/envs/environment.yml"
     output:
         touch("results/installed.done")
     conda:

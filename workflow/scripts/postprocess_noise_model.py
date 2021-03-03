@@ -7,12 +7,17 @@ from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter
 
 if __name__ == "__main__":
-    from custom_logger import setup_logger
+    import argparse
 
-    setup_logger(filename=snakemake.log[0])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input", required=True, type=str)
+    parser.add_argument("-o", "--output", required=True, type=str)
+    parser.add_argument("--color-smooth", required=True, type=float)
+    parser.add_argument("--mag-smooth", required=True, type=float)
+    args = parser.parse_args()
 
     # Load the data file
-    with fits.open(snakemake.input[0]) as f:
+    with fits.open(args.input) as f:
         hdr = f[0].header
         mu = f[1].data
         count = f[3].data
@@ -59,17 +64,13 @@ if __name__ == "__main__":
     mu_full = 0.5 * (mu_mean_x + mu_mean_y)
 
     # Finally, smooth the model using a Gaussian filter
-    dc = snakemake.config["noise"]["color_smoothing_scale"] / (
-        color_bins[1] - color_bins[0]
-    )
-    dm = snakemake.config["noise"]["mag_smoothing_scale"] / (
-        mag_bins[1] - mag_bins[0]
-    )
+    dc = args.color_smooth / (color_bins[1] - color_bins[0])
+    dm = args.color_smooth / (mag_bins[1] - mag_bins[0])
     mu_smooth = gaussian_filter(mu_full, (dm, dc))
 
     # Save the results
-    hdr["col_smth"] = snakemake.config["noise"]["color_smoothing_scale"]
-    hdr["mag_smth"] = snakemake.config["noise"]["mag_smoothing_scale"]
+    hdr["col_smth"] = args.color_smooth
+    hdr["mag_smth"] = args.mag_smooth
     fits.HDUList(
         [
             fits.PrimaryHDU(header=hdr),
@@ -77,4 +78,4 @@ if __name__ == "__main__":
             fits.ImageHDU(np.isfinite(mu_base).astype(np.int32)),
             fits.ImageHDU(count),
         ]
-    ).writeto(snakemake.output[0], overwrite=True)
+    ).writeto(args.output, overwrite=True)

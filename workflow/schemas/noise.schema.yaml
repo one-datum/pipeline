@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: Configuration file for noise model inference
+
+type: object
+properties:
+  seed:
+    type: integer
+  min_nb_transits:
+    type: integer
+
+  min_color:
+    type: number
+  max_color:
+    type: number
+  num_color:
+    type: integer
+
+  min_mag:
+    type: number
+  max_mag:
+    type: number
+  num_mag:
+    type: integer
+
+  targets_per_fit:
+    type: integer
+  num_optim:
+    type: integer
+  num_iter:
+    type: integer
+
+  color_smoothing_scale:
+    type: number
+  mag_smoothing_scale:
+    type: number

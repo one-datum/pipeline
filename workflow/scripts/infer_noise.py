@@ -127,54 +127,63 @@ def fit_data(
 
 
 if __name__ == "__main__":
-    from custom_logger import setup_logger
+    import argparse
 
-    setup_logger(filename=snakemake.log[0])
+    import yaml
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input", required=True, type=str)
+    parser.add_argument("-o", "--output", required=True, type=str)
+    parser.add_argument("-c", "--config", required=True, type=str)
+    args = parser.parse_args()
+
+    with open(args.config, "r") as f:
+        config = yaml.load(f.read(), Loader=yaml.FullLoader)
 
     data = load_data(
-        data_path=snakemake.input[0],
-        min_nb_transits=snakemake.config["noise"]["min_nb_transits"],
+        data_path=args.input,
+        min_nb_transits=config["min_nb_transits"],
         color_range=(
-            snakemake.config["noise"]["min_color"],
-            snakemake.config["noise"]["max_color"],
+            config["min_color"],
+            config["max_color"],
         ),
         mag_range=(
-            snakemake.config["noise"]["min_mag"],
-            snakemake.config["noise"]["max_mag"],
+            config["min_mag"],
+            config["max_mag"],
         ),
     )
 
     mu, sigma, count = fit_data(
         data,
-        num_mag_bins=snakemake.config["noise"]["num_mag"],
-        num_color_bins=snakemake.config["noise"]["num_color"],
+        num_mag_bins=config["num_mag"],
+        num_color_bins=config["num_color"],
         color_range=(
-            snakemake.config["noise"]["min_color"],
-            snakemake.config["noise"]["max_color"],
+            config["min_color"],
+            config["max_color"],
         ),
         mag_range=(
-            snakemake.config["noise"]["min_mag"],
-            snakemake.config["noise"]["max_mag"],
+            config["min_mag"],
+            config["max_mag"],
         ),
-        num_iter=snakemake.config["noise"]["num_iter"],
-        targets_per_fit=snakemake.config["noise"]["targets_per_fit"],
-        num_optim=snakemake.config["noise"]["num_optim"],
-        seed=snakemake.config["noise"]["seed"],
+        num_iter=config["num_iter"],
+        targets_per_fit=config["targets_per_fit"],
+        num_optim=config["num_optim"],
+        seed=config["seed"],
     )
 
     # Save the results
     hdr = fits.Header()
-    hdr["min_tra"] = snakemake.config["noise"]["min_nb_transits"]
-    hdr["min_col"] = snakemake.config["noise"]["min_color"]
-    hdr["max_col"] = snakemake.config["noise"]["max_color"]
-    hdr["num_col"] = snakemake.config["noise"]["num_color"]
-    hdr["min_mag"] = snakemake.config["noise"]["min_mag"]
-    hdr["max_mag"] = snakemake.config["noise"]["max_mag"]
-    hdr["num_mag"] = snakemake.config["noise"]["num_mag"]
-    hdr["num_itr"] = snakemake.config["noise"]["num_iter"]
-    hdr["num_per"] = snakemake.config["noise"]["targets_per_fit"]
-    hdr["num_opt"] = snakemake.config["noise"]["num_optim"]
-    hdr["seed"] = snakemake.config["noise"]["seed"]
+    hdr["min_tra"] = config["min_nb_transits"]
+    hdr["min_col"] = config["min_color"]
+    hdr["max_col"] = config["max_color"]
+    hdr["num_col"] = config["num_color"]
+    hdr["min_mag"] = config["min_mag"]
+    hdr["max_mag"] = config["max_mag"]
+    hdr["num_mag"] = config["num_mag"]
+    hdr["num_itr"] = config["num_iter"]
+    hdr["num_per"] = config["targets_per_fit"]
+    hdr["num_opt"] = config["num_optim"]
+    hdr["seed"] = config["seed"]
     fits.HDUList(
         [
             fits.PrimaryHDU(header=hdr),
@@ -182,4 +191,4 @@ if __name__ == "__main__":
             fits.ImageHDU(sigma),
             fits.ImageHDU(count),
         ]
-    ).writeto(snakemake.output[0], overwrite=True)
+    ).writeto(args.output, overwrite=True)
