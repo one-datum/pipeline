@@ -12,13 +12,3 @@ def get_bulk_filenames():
         filenames.append("src/one_datum/data/{0}-noise-model.fits".format(config["dataset_name"]))
     filenames.append(config["noise"]["base_table_filename"])
     return filenames
-
-rule install_local:
-    output:
-        touch("results/installed.done")
-    conda:
-        "../envs/environment.yml"
-    log:
-        "results/logs/install-local.log"
-    shell:
-        "python -m pip install -e . &> {log}"
