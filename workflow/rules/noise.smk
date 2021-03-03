@@ -37,18 +37,17 @@ rule postprocess_noise_model:
 
 rule install_noise_model:
     input:
-        "results/{dataset}/noise/smoothed-noise-model.fits"
+        "results/edr3/noise/smoothed-noise-model.fits"
     output:
-        "src/one_datum/data/{dataset}-noise-model.fits"
+        "src/one_datum/data/noise-model.fits"
     log:
-        "results/logs/{dataset}/noise/install-noise-model.log"
+        "results/logs/edr3/noise/install-noise-model.log"
     shell:
         "cp {input} {output} &> {log}"
 
 rule apply_noise_model:
     input:
-        base_table=config["base_table_filename"],
-        grid=expand("src/one_datum/data/{base_dataset_name}-noise-model.fits", base_dataset_name=config["base_dataset_name"])
+        config["base_table_filename"]
     output:
         "results/{dataset}/noise/estimated.fits.gz"
     conda:
@@ -56,4 +55,4 @@ rule apply_noise_model:
     log:
         "results/logs/{dataset}/noise/apply-noise-model.log"
     shell:
-        "python workflow/scripts/apply_noise_model.py --input {input.base_table} --output {output} &> {log}"
+        "python workflow/scripts/apply_noise_model.py --input {input} --output {output} &> {log}"

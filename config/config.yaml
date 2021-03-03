@@ -1,5 +1,4 @@
 dataset_name: "edr3"
-base_dataset_name: "edr3"
 base_table_filename: "resources/data/edr3-rv-good-plx-result.fits.gz"
 install_noise_model: true
 noise_config_file: "config/noise.yaml"

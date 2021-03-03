@@ -11,9 +11,7 @@ from scipy.interpolate import RegularGridInterpolator
 
 
 def get_filename() -> str:
-    return pkg_resources.resource_filename(
-        __name__, "data/edr3-noise-model.fits"
-    )
+    return pkg_resources.resource_filename(__name__, "data/noise-model.fits")
 
 
 def get_uncertainty_model(
