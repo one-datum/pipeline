@@ -5,6 +5,8 @@ type: object
 properties:
   dataset_name:
     type: string
+  base_dataset_name:
+    type: string
   base_table_filename:
     type: string
 

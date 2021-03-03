@@ -2,7 +2,7 @@
 
 rule bulk_inference:
     input:
-        get_bulk_filenames()
+        "results/{dataset}/noise/estimated.fits.gz"
     output:
         "results/{dataset}/bulk/processed.fits.gz"
     conda:
