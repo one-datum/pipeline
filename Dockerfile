@@ -21,6 +21,7 @@ ENV PATH $MAMBA_ROOT_PREFIX/bin:${PATH}
 # Set up the environment and install pipeline dependencies
 COPY workflow/envs/environment.yml environment.yml
 RUN $MAMBA_ROOT_PREFIX/bin/mamba env update --file environment.yml --prefix $MAMBA_ROOT_PREFIX \
+ && $MAMBA_ROOT_PREFIX/bin/mamba clean --all -y \
  && rm environment.yml
 
 COPY . /build

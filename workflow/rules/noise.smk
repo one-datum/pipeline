@@ -1,36 +1,36 @@
+# Rules to infer the noise model
+
 rule infer_noise:
     input:
-        "resources/data/edr3-rv-good-plx-result.fits.gz"
+        config["noise"]["base_table_filename"],
+        "results/installed.done"
     output:
-        expand("resources/data/noise-model{suffix}.fits", suffix=config["noise"]["suffix"])
+        "results/noise/{dataset}/raw-noise-model.fits"
     conda:
         "../envs/environment.yml"
     log:
-        "results/logs/infer-noise.log"
+        "results/logs/noise/{dataset}/infer-noise.log"
     script:
         "../scripts/infer_noise.py"
 
 rule postprocess_noise_model:
     input:
-        expand("resources/data/noise-model{suffix}.fits", suffix=config["noise"]["suffix"])
+        "results/noise/{dataset}/raw-noise-model.fits"
     output:
-        expand("src/one_datum/data/noise-model{suffix}.fits", suffix=config["noise"]["suffix"])
+        "results/noise/{dataset}/smoothed-noise-model.fits"
     conda:
         "../envs/environment.yml"
     log:
-        "results/logs/postprocess-noise-model.log"
+        "results/logs/noise/{dataset}/postprocess-noise-model.log"
     script:
         "../scripts/postprocess_noise_model.py"
 
-rule apply_noise_model:
+rule install_noise_model:
     input:
-        "resources/data/edr3-rv-good-plx-result.fits.gz",
-        expand("src/one_datum/data/noise-model{suffix}.fits", suffix=config["noise"]["suffix"])
+        "results/noise/{dataset}/smoothed-noise-model.fits"
     output:
-        expand("resources/data/edr3-rv-good-plx-plus-semiamp{suffix}.fits.gz", suffix=config["noise"]["suffix"])
-    conda:
-        "../envs/environment.yml"
+        "src/one_datum/data/{dataset}-noise-model.fits"
     log:
-        "results/logs/apply-noise-model.log"
-    script:
-        "../scripts/apply_noise_model.py"
+        "results/logs/noise/{dataset}/install-noise-model.log"
+    shell:
+        "cp {input} {output} &> {log}"

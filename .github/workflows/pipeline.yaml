@@ -1,0 +1,35 @@
+name: Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+    - name: Lint workflow
+      uses: snakemake/snakemake-github-action@v1.16.0
+      with:
+        directory: .
+        snakefile: workflow/Snakefile
+        args: "--lint"
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+    - name: Noise model inference
+      uses: snakemake/snakemake-github-action@v1.16.0
+      with:
+        directory: .
+        snakefile: workflow/Snakefile
+        args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba results/noise/test_noise_model/smoothed-noise-model.fits"

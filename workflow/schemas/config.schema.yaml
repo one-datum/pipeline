@@ -3,6 +3,9 @@ description: Snakemake configuration file
 
 type: object
 properties:
+  dataset_name:
+    type: string
+
   gaia:
     type: object
     properties:
@@ -16,8 +19,11 @@ properties:
   noise:
     type: object
     properties:
-      suffix:
+      base_table_filename:
         type: string
+      install_noise_model:
+        type: boolean
+
       seed:
         type: integer
       min_nb_transits:

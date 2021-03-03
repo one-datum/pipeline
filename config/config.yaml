@@ -1,3 +1,5 @@
+dataset_name: "edr3"
+
 gaia:
   credentials_file: ""
   # credentials_file: "/path/to/gaia/archive.login"
@@ -6,8 +8,8 @@ gaia:
   # password = "password"
 
 noise:
-  # A suffix to add to the output filename
-  suffix: ""
+  base_table_filename: "resources/data/edr3-rv-good-plx-result.fits.gz"
+  install_noise_model: true
 
   # A random number seed
   seed: 11239
