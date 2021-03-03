@@ -11,6 +11,9 @@
 
 \newcommand{\Gaia}{\project{Gaia}}
 
+% Math
+\newcommand{\dd}{\ensuremath{\,\mathrm{d}}}
+
 \shorttitle{Sample article}
 \shortauthors{Foreman-Mackey et al.}
 
@@ -52,6 +55,8 @@ The \Gaia\ pipeline does not release a public estimate of this, but it can be es
 To make this estimate, the key assumption that we make is that the RV uncertainty depends only on a target's (reddened) $G_\mathrm{BP} - G_\mathrm{RP}$ color and apparent $G$-band magnitude $m_\mathrm{G}$.
 While this is certainly not the full story, we discuss several validation experiments below and argue that this is not an overly restrictive assumption given the precision of our measurements.
 
+\paragraph{A toy model}
+
 To build intuition, let's start with a simplified toy model that we will extend below.
 If we have a catalog of $N$ targets where only the sample variance ${s_n}^2$ of the RV time series and the number of observations $T_n$ of target $n$.
 For our initial toy model, let's also assume that we know that the only source of noise is the per-transit measurement uncertainty, which we will assume to be Gaussian.
@@ -67,21 +72,35 @@ where $x_{n,t}$ are the individual RV measurements for target $n$ at time $t$ an
 In this model, our data are the empirical sample variances ${s_n}^2$ and we want to infer the underlying variance $\sigma^2$ that is shared by all targets $n$.
 In other words, we must evaluate the likelihood function
 \begin{eqnarray}
+  \label{eq:noise-like1}
   \mathcal{L}(\sigma^2;\,\left\{{s_n}^2\right\}) &=& p(\left\{{s_n}^2\right\}\,|\,\sigma^2) \\
-  &=& \prod_{n=1}^N\int p({s_n}^2\,|\,x_{n,t})\,p(x_{n,t}\,|\,\sigma^2) \mathrm{d}x_{n,t}\quad.
+  &=& \prod_{n=1}^N\int p({s_n}^2\,|\,x_{n,t})\,p(x_{n,t}\,|\,\sigma^2) \dd x_{n,t}\quad.
 \end{eqnarray}
-From this equation we might recognize that the statistic $X_n$
+From this equation we can see that the statistic $X_n$
 \begin{eqnarray}
-  X_n &=& \frac{(N - 1)\,{s_n}^2}{s^2}
+  X_n &=& \frac{(T_n - 1)\,{s_n}^2}{\sigma^2}
 \end{eqnarray}
-is chi-squared distributed with $T_n - 1$ degrees of freedom, but this doesn't directly define the correct likelihood function since it is not properly normalized.
-Instead, the likelihood function is defined by
+is chi-squared distributed with $T_n - 1$ degrees of freedom.
+Therefore, Equation~\ref{eq:noise-like1} becomes
 \begin{eqnarray}
-  (N - 1)\,{s_n}^2 &\sim& \Gamma\left(\frac{T_n - 1}{2},\,2\,\sigma^2\right)
+  \label{eq:noise-like2}
+  \mathcal{L}(\sigma^2;\,\left\{{s_n}^2\right\}) &=& \prod_{n=1}^N \left|\frac{\partial X_n}{\partial {s_n}^2}\right|\,p(X_n\,|\,\sigma^2) \nonumber\\
+  &=& \prod_{n=1}^N \frac{T_n - 1}{\sigma^2}\,p(X_n\,|\,\sigma^2)
 \end{eqnarray}
-where $\Gamma(a,\,b)$ is a gamma distribution with shape $a$ and scale $b$.
-This follows from the relationship between the chi-squared and gamma distributions.
+where $p(X_n\,|\,\sigma)$ is a chi-squared density with $T_n - 1$ degrees of freedom.
+In this equation, the Jacobian term is important since $\sigma^2$ is a parameter of the model.
 
+\paragraph{A more realistic model}
+
+In the previous discussion we assumed that the \emph{only} source of noise contributing to the RV sample variance measurement was the individual RV measurement uncertainties.
+This isn't going to be true when working with real data since there will by other sources of excess noise, both systematic and astrophysical; in fact, that's the whole point of this paper!
+To handle this, we add $N$ new parameters ${\delta_n}^2$ to our model, which we will add to the baseline uncertainty $\sigma^2$ when computing the expected variance for a target $n$.
+With this change, our model is nearly identical to Equation~\ref{eq:noise-like2}, with $\sigma^2$ replaced with $\sigma^2 + {\delta_n}^2$
+\begin{eqnarray}
+  \label{eq:noise-like3}
+  \mathcal{L}(\sigma^2,\,\left\{{\delta_n}^2\right\};\,\left\{{s_n}^2\right\}) &=& \prod_{n=1}^N \frac{T_n - 1}{\sigma^2 + {\delta_n}^2}\,p(X_n\,|\,\sigma^2 + {\delta_n}^2) \quad.
+\end{eqnarray}
+This is a very flexible model with more parameters than data points, but it is still possible to perform parameter estimation.
 
 % To make this inference we build a probabilistic model for the reported distribution of ``radial velocity errors'' for a set of $N = 1000$ stars with similar colors and magnitudes.
 % In other words, our dataset is $\{{s_n}^2,\,k_n\}_{n=1}^N$ where ${s_n}^2$ is the RV sample variance (as discussed above) for target $n$ and $k_n$ is the number of RV transits used to compute ${s_n}^2$.
