@@ -2,8 +2,7 @@
 
 rule infer_noise:
     input:
-        base_table=config["base_table_filename"],
-        installed="results/installed.done"
+        config["base_table_filename"]
     output:
         "results/{dataset}/noise/raw-noise-model.fits"
     params:
@@ -13,7 +12,7 @@ rule infer_noise:
     log:
         "results/logs/{dataset}/noise/infer-noise.log"
     shell:
-        "python workflow/scripts/infer_noise.py --input {input.base_table} --output {output} --config {params.config} &> {log}"
+        "python workflow/scripts/infer_noise.py --input {input} --output {output} --config {params.config} &> {log}"
 
 rule postprocess_noise_model:
     input:
@@ -49,7 +48,6 @@ rule install_noise_model:
 rule apply_noise_model:
     input:
         base_table=config["base_table_filename"],
-        installed="results/installed.done",
         grid=expand("src/one_datum/data/{base_dataset_name}-noise-model.fits", base_dataset_name=config["base_dataset_name"])
     output:
         "results/{dataset}/noise/estimated.fits.gz"
