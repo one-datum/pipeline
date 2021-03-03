@@ -14,8 +14,6 @@ def get_bulk_filenames():
     return filenames
 
 rule install_local:
-    input:
-        directory("src/one_datum")
     output:
         touch("results/installed.done")
     conda:

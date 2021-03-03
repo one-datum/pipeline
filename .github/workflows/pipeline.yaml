@@ -27,9 +27,16 @@ jobs:
         with:
           fetch-depth: 0
 
-    - name: Test noise model
+    - name: Noise model inference
       uses: snakemake/snakemake-github-action@v1.16.0
       with:
         directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba"
+        args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba results/test_noise_model/noise/smoothed-noise-model.fits"
+
+    - name: Bulk orbit inference
+      uses: snakemake/snakemake-github-action@v1.16.0
+      with:
+        directory: .
+        snakefile: workflow/Snakefile
+        args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba results/test_noise_model/bulk/processed.fits.gz"
