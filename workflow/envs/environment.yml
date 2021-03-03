@@ -19,3 +19,4 @@ dependencies:
   - pip:
       - kepler.py==0.0.6
       - numpyro==0.5.0
+      - -e git+https://github.com/dfm/one-datum.git@main#egg=one-datum

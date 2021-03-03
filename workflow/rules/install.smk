@@ -10,4 +10,5 @@ rule install_local:
     log:
         "results/logs/install-local.log"
     shell:
-        "python -m pip install -e . &> {log}"
+        "echo \"nothing\"""
+        # "python -m pip install -e . &> {log}"
