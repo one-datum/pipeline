@@ -9,4 +9,4 @@ validate(noise_config, "../schemas/noise.schema.yaml")
 
 
 def get_final_output():
-    return ["results/data/{0}/processed.fits.gz".format(config["dataset_name"])]
+    return ["results/{0}/bulk/processed.fits.gz".format(config["dataset_name"])]
