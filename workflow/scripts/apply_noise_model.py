@@ -10,8 +10,8 @@ from typing import Iterable, Tuple, Union
 import fitsio
 import kepler
 import numpy as np
-from numpy.lib.recfunctions import append_fields
 import scipy.stats
+from numpy.lib.recfunctions import append_fields
 
 from one_datum import uncertainty
 
