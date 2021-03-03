@@ -284,3 +284,4 @@ Untitled*.ipynb
 config/*.yaml
 dist
 build
+localconfig.yaml
