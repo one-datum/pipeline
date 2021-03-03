@@ -10,6 +10,7 @@ from typing import Iterable, Tuple, Union
 import fitsio
 import kepler
 import numpy as np
+from numpy.lib.recfunctions import append_fields
 import scipy.stats
 
 from one_datum import uncertainty
@@ -22,6 +23,9 @@ def load_data(
     *,
     rows: Union[Iterable[int], slice] = slice(None),
     cols: Iterable[str] = [
+        "source_id",
+        "ra",
+        "dec",
         "bp_rp",
         "phot_g_mean_mag",
         "dr2_rv_nb_transits",
@@ -143,7 +147,7 @@ if __name__ == "__main__":
     filename = snakemake.input[0]
 
     print("Loading data...")
-    data = load_data(filename, rows=slice(10509))
+    data = load_data(filename)
     num_rows = len(data)
     max_nb_transits = data["dr2_rv_nb_transits"].max()
 
@@ -194,4 +198,14 @@ if __name__ == "__main__":
     print(f"Current memory usage {current/1e6}MB; Peak: {peak/1e6}MB")
     print(f"Time elapsed: {time.time()-start_time:.2f}s")
     tracemalloc.stop()
-    print(np.concatenate(results, axis=0))
+
+    # Save the results
+    inds = np.concatenate(results, axis=0)
+    ln_semiamp = ln_semiamp[inds]
+    data = append_fields(
+        data,
+        ["noise_ln_sigma"]
+        + [f"noise_semiamp_p{(100 * q):.0f}" for q in QUANTILES],
+        [ln_sigma] + [np.exp(ln_semiamp[:, q]) for q in range(len(QUANTILES))],
+    )
+    fitsio.write(snakemake.output[0], data, clobber=True)
