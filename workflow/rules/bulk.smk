@@ -10,4 +10,4 @@ rule bulk_inference:
     log:
         "results/logs/{dataset}/bulk/bulk-inference.log"
     shell:
-        "python workflow/scripts/apply_noise_model.py --input {input} --output {output} &> {log}"
+        "python workflow/scripts/bulk_inference.py --input {input} --output {output} &> {log}"
