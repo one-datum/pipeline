@@ -63,5 +63,5 @@ if __name__ == "__main__":
 
     print("Estimating sigma...")
     ln_sigma = compute_ln_sigma(data)
-    data = append_fields(data, ["noise_ln_sigma"], [ln_sigma])
+    data = append_fields(data, ["rv_est_uncert"], [np.exp(ln_sigma)])
     fitsio.write(args.output, data, clobber=True)

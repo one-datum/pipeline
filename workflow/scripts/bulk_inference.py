@@ -27,8 +27,11 @@ def precompute_model(
     # Sample many parameters from the prior
     log_period = random.uniform(np.log(1.0), np.log(800.0), num_samp)
     phase = random.uniform(-np.pi, np.pi, num_samp)
-    log_semiamp = np.sort(random.uniform(np.log(0.1), np.log(500.0), num_samp))
-    ecc = random.beta(0.867, 3.03, num_samp)
+    log_semiamp = np.sort(
+        random.uniform(np.log(0.1), np.log(1000.0), num_samp)
+    )
+    # ecc = random.beta(0.867, 3.03, num_samp)
+    ecc = random.uniform(0.0, 0.9, num_samp)
     omega = random.uniform(-np.pi, np.pi, num_samp)
 
     # Compute the Keplerian model
@@ -117,7 +120,7 @@ if __name__ == "__main__":
     ln_semiamp, rate_param = precompute_model(data["dr2_rv_nb_transits"].max())
 
     # Compute the ingredients for probabilistic model
-    ln_sigma = data["noise_ln_sigma"]
+    ln_sigma = np.log(data["rv_est_uncert"])
     nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)
     eps = data["dr2_radial_velocity_error"]
     sample_variance = 2 * nb_transits * (eps ** 2 - 0.11 ** 2) / np.pi
@@ -165,7 +168,7 @@ if __name__ == "__main__":
     ln_semiamp = ln_semiamp[inds]
     data = append_fields(
         data,
-        [f"noise_semiamp_p{(100 * q):.0f}" for q in QUANTILES],
+        [f"rv_semiamp_p{(100 * q):.0f}" for q in QUANTILES],
         [np.exp(ln_semiamp[:, q]) for q in range(len(QUANTILES))],
     )
     fitsio.write(args.output, data, clobber=True)
