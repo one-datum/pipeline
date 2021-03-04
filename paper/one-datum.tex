@@ -1,0 +1,170 @@
+\documentclass[modern, letterpaper]{aastex63}
+
+\usepackage{microtype}
+\usepackage{amsmath}
+
+\include{figures/githash}
+
+\newcommand{\package}[1]{\textsf{#1}}
+\newcommand{\project}[1]{\textsl{#1}}
+\newcommand{\acronym}[1]{{\small{#1}}}
+
+\newcommand{\Gaia}{\project{Gaia}}
+
+% Math
+\newcommand{\dd}{\ensuremath{\,\mathrm{d}}}
+
+\shorttitle{Sample article}
+\shortauthors{Foreman-Mackey et al.}
+
+\begin{document}
+
+\title{Millions of radial velocity orbits from Gaia\footnote{Git hash: \textsf{\githash}}}
+
+\correspondingauthor{Daniel Foreman-Mackey}
+\email{dforeman-mackey@flatironinstitute.org}
+
+\author[0000-0002-9328-5652]{Daniel Foreman-Mackey}
+\affiliation{Center for Computational Astrophysics, Flatiron Institute, New York, NY}
+
+\author{TBD}
+\noaffiliation{}
+
+\begin{abstract}
+  This is a paper about unresolved binaries in Gaia RVs.
+\end{abstract}
+
+\keywords{Astrostatistics (1882) --- Binary stars (154) --- Radial velocity (1332)}
+
+\section{Introduction} \label{sec:intro}
+
+By the end of the \Gaia\ Mission, it will discover SOME LARGE NUMBER of exoplanet and multiple star systems based on time resolved astrometry and radial velocities of many targets.
+In the meantime, we only have static measurements of the radial velocity, but it turns out that there is still information in the existing public facing catalog to place constraints on the orbital parameters of multiple systems using the \Gaia\ data.
+It has been previously demonstrated that the published radial velocity and astrometric ``errors'' can be used a proxy for multiplicity or data quality.
+In this paper, however, we demonstrate that it is possible to use the reported radial velocity errors and a probabilistic model to place constraints on the radial velocity amplitude and, in some cases, some other properties of the orbit.
+These measurements are useful for many applications, including \emph{(a)} discovering black holes, \emph{(b)} vetting transiting exoplanet discoveries, \emph{(c)} measuring the masses of a large sample of eclipsing binaries, \emph{(d)} quantify the binary fraction across the H--R diagram, and \emph{(e)} informing constraints on exoplanet formation and evolution theory, to name a few.
+
+\section{The basic idea}
+
+Comment on RV error vs sample variance.
+
+\section{Estimating the per-transit radial velocity precision}
+
+A key element of our analysis is that we have a reasonably accurate estimate of the per-transit radial velocity measurement uncertainty.
+The \Gaia\ pipeline does not release a public estimate of this, but it can be estimated from the data in the public catalog.
+To make this estimate, the key assumption that we make is that the RV uncertainty depends only on a target's (reddened) $G_\mathrm{BP} - G_\mathrm{RP}$ color and apparent $G$-band magnitude $m_\mathrm{G}$.
+While this is certainly not the full story, we discuss several validation experiments below and argue that this is not an overly restrictive assumption given the precision of our measurements.
+
+\paragraph{A toy model}
+
+To build intuition, let's start with a simplified toy model that we will extend below.
+If we have a catalog of $N$ targets where only the sample variance ${s_n}^2$ of the RV time series and the number of observations $T_n$ of target $n$.
+For our initial toy model, let's also assume that we know that the only source of noise is the per-transit measurement uncertainty, which we will assume to be Gaussian.
+In this case, the generative model is
+\begin{eqnarray}
+  x_{n,t} &\sim& \mathcal{N}(\mu_n,\,\sigma^2) \\
+  {s_n}^2 &=& \frac{1}{T_n - 1}\sum_{t=1}^{T_n} \left(x_{n,t} - \left< x_{n,t} \right>\right)^2
+\end{eqnarray}
+where $x_{n,t}$ are the individual RV measurements for target $n$ at time $t$ and
+\begin{eqnarray}
+  \left< x_{n,t} \right> &\equiv& \frac{1}{T_n}\sum_{t=1}^{T_n}x_{n,t} \quad.
+\end{eqnarray}
+In this model, our data are the empirical sample variances ${s_n}^2$ and we want to infer the underlying variance $\sigma^2$ that is shared by all targets $n$.
+In other words, we must evaluate the likelihood function
+\begin{eqnarray}
+  \label{eq:noise-like1}
+  \mathcal{L}(\sigma^2;\,\left\{{s_n}^2\right\}) &=& p(\left\{{s_n}^2\right\}\,|\,\sigma^2) \\
+  &=& \prod_{n=1}^N\int p({s_n}^2\,|\,x_{n,t})\,p(x_{n,t}\,|\,\sigma^2) \dd x_{n,t}\quad.
+\end{eqnarray}
+From this equation we can see that the statistic $X_n$
+\begin{eqnarray}
+  X_n &=& \frac{(T_n - 1)\,{s_n}^2}{\sigma^2}
+\end{eqnarray}
+is chi-squared distributed with $T_n - 1$ degrees of freedom.
+Therefore, Equation~\ref{eq:noise-like1} becomes
+\begin{eqnarray}
+  \label{eq:noise-like2}
+  \mathcal{L}(\sigma^2;\,\left\{{s_n}^2\right\}) &=& \prod_{n=1}^N \left|\frac{\partial X_n}{\partial {s_n}^2}\right|\,p(X_n\,|\,\sigma^2) \nonumber\\
+  &=& \prod_{n=1}^N \frac{T_n - 1}{\sigma^2}\,p(X_n\,|\,\sigma^2)
+\end{eqnarray}
+where $p(X_n\,|\,\sigma)$ is a chi-squared density with $T_n - 1$ degrees of freedom.
+In this equation, the Jacobian term is important since $\sigma^2$ is a parameter of the model.
+
+\paragraph{A more realistic model}
+
+In the previous discussion we assumed that the \emph{only} source of noise contributing to the RV sample variance measurement was the individual RV measurement uncertainties.
+This isn't going to be true when working with real data since there will by other sources of excess noise, both systematic and astrophysical; in fact, that's the whole point of this paper!
+To handle this, we add $N$ new parameters ${\delta_n}^2$ to our model, which we will add to the baseline uncertainty $\sigma^2$ when computing the expected variance for a target $n$.
+With this change, our model is nearly identical to Equation~\ref{eq:noise-like2}, with $\sigma^2$ replaced with $\sigma^2 + {\delta_n}^2$
+\begin{eqnarray}
+  \label{eq:noise-like3}
+  \mathcal{L}(\sigma^2,\,\left\{{\delta_n}^2\right\};\,\left\{{s_n}^2\right\}) &=& \prod_{n=1}^N \frac{T_n - 1}{\sigma^2 + {\delta_n}^2}\,p(X_n\,|\,\sigma^2 + {\delta_n}^2) \quad.
+\end{eqnarray}
+This is a very flexible model with more parameters than data points, but it is still possible to perform parameter estimation.
+
+% To make this inference we build a probabilistic model for the reported distribution of ``radial velocity errors'' for a set of $N = 1000$ stars with similar colors and magnitudes.
+% In other words, our dataset is $\{{s_n}^2,\,k_n\}_{n=1}^N$ where ${s_n}^2$ is the RV sample variance (as discussed above) for target $n$ and $k_n$ is the number of RV transits used to compute ${s_n}^2$.
+% Then, we model the statistic
+% \begin{eqnarray}
+%   \label{eq:rv-uncert-stat}
+%   X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2 + {\delta_n}^2}
+% \end{eqnarray}
+% as being $\chi^2$-distributed with $k_n - 1$ degrees of freedom; where the shared measurement uncertainty $\sigma_0$ and the per-target excess noise $\delta_n$ are parameters of the model.
+% This means that a model for $N$ targets has $N + 1$ parameters, but we will show that, given the right constraints, this produces sensible marginal estimates of $\sigma_0$ which is our primary quantity of interest.
+
+% An intuition for the model defined by Equation~\ref{eq:rv-uncert-stat} can be gained by considering the case of a collection of $N$ targets known (by some other means) to be single stars without any excess systematic noise or outliers.
+% In that case, for Gaussian distributed per-transit RV uncertainty, we would expect the quantity
+% \begin{eqnarray}
+%   \label{eq:rv-uncert-stat-basic}
+%   X_n &=& \frac{{s_n}^2\,(k_n - 1)}{{\sigma_0}^2}
+% \end{eqnarray}
+% to be $\chi^2$-distributed with $k_n - 1$ degrees of freedom.
+% However, in reality, some fraction of our targets are actually multiple star systems and some others might be outliers for some other reason.
+% Therefore, we add the excess noise parameters in Equation~\ref{eq:rv-uncert-stat} to account for these effects.
+
+\section{Bulk radial velocity inference}
+
+\section{Artisanal radial velocities}
+
+\section{Validation}
+
+\section{Discussion}
+
+This is a paper.
+See Figure~\ref{fig:sim_rv_uncertainty} and Figure~\ref{fig:rv_uncert_contour}.
+
+\begin{figure}
+  \plotone{figures/sim_rv_uncertainty.pdf}
+  \caption{This is a cool figure. \label{fig:sim_rv_uncertainty}}
+\end{figure}
+
+\begin{figure}
+  \plotone{figures/rv_uncert_contour.pdf}
+  \caption{This is another cool figure. \label{fig:rv_uncert_contour}}
+\end{figure}
+
+
+\acknowledgments
+The authors would like to thank the Astronomical Data Group at Flatiron for listening to every iteration of this project and for providing great feedback every step of the way.
+
+\vspace{5mm}
+\facilities{
+  \project{APOGEE},
+  \project{Gaia}
+}
+\software{
+  \package{AstroPy} \citep{Astropy2013, Astropy2018},
+  \package{JAX} \citep{Bradbury2018},
+  \package{NumPy} \citep{Harris2020},
+  \package{Matplotlib} \citep{Hunter2007},
+  \package{SciPy} \citep{Virtanen2020}
+}
+
+\appendix
+
+\section{Probably some fancy math}
+
+\bibliography{one-datum}{}
+\bibliographystyle{aasjournal}
+
+\end{document}
