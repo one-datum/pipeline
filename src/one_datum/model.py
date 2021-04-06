@@ -128,13 +128,15 @@ class BasicDR2RVErrorModel(DR2RVErrorModel):
         num_samples: int,
         log_period_range: Tuple[float, float] = (1.0, 800.0),
         log_semiamp_range: Tuple[float, float] = (0.1, 100.0),
-        ecc_beta_params: Optional[Tuple[float, float]] = None,
+        ecc_params: Optional[Tuple[float, float]] = None,
+        ecc_uniform: bool = False,
         reuse: bool = False,
         seed: Optional[int] = None,
     ):
         self.log_period_range = log_period_range
         self.log_semiamp_range = log_semiamp_range
-        self.ecc_beta_params = ecc_beta_params
+        self.ecc_params = ecc_params
+        self.ecc_uniform = ecc_uniform
         super().__init__(max_num_transits, num_samples, reuse, seed)
 
     def sample_parameters(
@@ -152,7 +154,7 @@ class BasicDR2RVErrorModel(DR2RVErrorModel):
         )
         phase = random.uniform(-np.pi, np.pi, num_samples)
 
-        if self.ecc_beta_params is None:
+        if self.ecc_params is None:
             params = np.concatenate(
                 (log_semiamp[:, None], log_period[:, None], phase[:, None]),
                 axis=1,
@@ -164,9 +166,14 @@ class BasicDR2RVErrorModel(DR2RVErrorModel):
                 phase=phase,
             )
         else:
-            ecc = random.beta(
-                self.ecc_beta_params[0], self.ecc_beta_params[1], num_samples
-            )
+            if self.ecc_uniform:
+                ecc = random.uniform(
+                    self.ecc_params[0], self.ecc_params[1], num_samples
+                )
+            else:
+                ecc = random.beta(
+                    self.ecc_params[0], self.ecc_params[1], num_samples
+                )
             omega = random.uniform(-np.pi, np.pi, num_samples)
             params = np.concatenate(
                 (

@@ -122,6 +122,20 @@ This is a very flexible model with more parameters than data points, but it is s
 % However, in reality, some fraction of our targets are actually multiple star systems and some others might be outliers for some other reason.
 % Therefore, we add the excess noise parameters in Equation~\ref{eq:rv-uncert-stat} to account for these effects.
 
+\section{Binary probabilities}
+
+One side effect of inferring the per-transit radial velocity uncertainty for all sources in \Gaia\ is that we also get (for free!) an estimate of the probability that the measured RV error is consistent with what we would expect if the individual RV measurements were Gaussian distributed with this uncertainty.
+This is some sort of ``outlier'' probability, but we can use it as a proxy for binarity in the absence of systematic, or other un-accounted for effects.
+We explore the limitations of such an assumption in the following sections, but it is useful for now to discuss the math for the idealized case here.
+
+If each measured RV sample for a given \Gaia\ target $n$ was truly just generated as Gaussian noise with variance ${\sigma_n}^2$, the sampling distribution for the measured, normalized RV variance $X_n = (T_n - 1)\,{s_n}^2 / {\sigma_n}^2$ would be a $\chi^2$ with $T_n - 1$ degrees of freedom.
+Therefore, we can compute the $p$-value for this null hypothesis as
+\begin{eqnarray}
+\mathrm{Pr}(X > X_n\,|\,\mathrm{null}) &=& \int_{X_n}^\infty \chi^2 (X;\,T_n-1) \dd X \quad.
+\end{eqnarray}
+This is a useful number since, in principle, it can be used to construct a catalog with a specific false positive rate.
+Some more words about $p$-values.
+
 \section{Bulk radial velocity inference}
 
 \section{Artisanal radial velocities}
