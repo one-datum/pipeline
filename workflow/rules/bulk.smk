@@ -2,7 +2,7 @@
 
 rule bulk_inference:
     input:
-        "results/{dataset}/noise/estimated.fits.gz"
+        get_simulated_or_real_catalog
     output:
         "results/{dataset}/bulk/processed.fits.gz"
     conda:
