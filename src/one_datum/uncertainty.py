@@ -15,9 +15,13 @@ def get_filename() -> str:
 
 
 def get_uncertainty_model(
-    *, bounds_error: bool = False, fill_value: Optional[float] = None
+    *,
+    bounds_error: bool = False,
+    fill_value: Optional[float] = None,
+    filename: str = None,
 ) -> RegularGridInterpolator:
-    filename = get_filename()
+    if not filename:
+        filename = get_filename()
 
     with fits.open(filename) as f:
         hdr = f[0].header

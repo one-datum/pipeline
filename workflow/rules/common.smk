@@ -25,5 +25,5 @@ def get_results_filename(filename):
 
 
 def get_log_filename(filename):
-    basedir = config.get('log_basedir', config.get('results_basedir', 'results') + "/logs")
+    basedir = config.get('log_basedir', f"{config.get('results_basedir', 'results')}/logs")
     return f"{basedir}/{filename}"

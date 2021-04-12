@@ -30,8 +30,10 @@ def load_data(
         return f[ext][cols][rows]
 
 
-def compute_ln_sigma(data: np.recarray, *, step: int = 500) -> np.ndarray:
-    noise_model = uncertainty.get_uncertainty_model()
+def compute_ln_sigma(
+    data: np.recarray, *, step: int = 500, filename: str = None
+) -> np.ndarray:
+    noise_model = uncertainty.get_uncertainty_model(filename=filename)
     ln_sigma = np.empty(len(data), dtype=np.float32)
     ln_sigma[:] = np.nan
     for n in range(0, len(data), step):
@@ -55,6 +57,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", required=True, type=str)
+    parser.add_argument("-n", "--noise-model", required=True, type=str)
     parser.add_argument("-o", "--output", required=True, type=str)
     args = parser.parse_args()
 
@@ -62,6 +65,6 @@ if __name__ == "__main__":
     data = load_data(args.input)
 
     print("Estimating sigma...")
-    ln_sigma = compute_ln_sigma(data)
+    ln_sigma = compute_ln_sigma(data, filename=args.noise_model)
     data = append_fields(data, ["rv_est_uncert"], [np.exp(ln_sigma)])
     fitsio.write(args.output, data, clobber=True)
