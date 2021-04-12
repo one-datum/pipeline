@@ -14,12 +14,12 @@ rule bulk_inference:
 
 rule bulk_inference_sims:
     input:
-        get_results_filename("{dataset}/sims/simulated.fits.gz")
+        get_results_filename("sims/simulated.fits.gz")
     output:
-        get_results_filename("{dataset}/sims/processed.fits.gz")
+        get_results_filename("sims/processed.fits.gz")
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/sims/bulk-inference.log")
+        get_log_filename("sims/bulk-inference.log")
     shell:
         "python workflow/scripts/bulk_inference.py --input {input} --output {output} &> {log}"

@@ -1,8 +1,8 @@
 from snakemake.utils import min_version
 min_version("5.12.0")
 
+report: "report/workflow.rst"
 configfile: "config/config.yaml"
-container: "docker://ghcr.io/dfm/one-datum:main"
 
 include: "rules/common.smk"
 include: "rules/install.smk"
