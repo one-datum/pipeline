@@ -23,4 +23,3 @@ rule bulk_inference_sims:
         get_log_filename("{dataset}/sims/bulk-inference.log")
     shell:
         "python workflow/scripts/bulk_inference.py --input {input} --output {output} &> {log}"
-

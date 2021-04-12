@@ -4,8 +4,8 @@
 import fitsio
 import kepler
 import numpy as np
-from scipy.special import gamma
 import yaml
+from scipy.special import gamma
 
 
 def simulate_nb_transits(random, N, x0, alpha):
