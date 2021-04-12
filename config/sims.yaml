@@ -1,5 +1,9 @@
 seed: 948302
 num_sims: 20000
+max_rv_error: 20.0
+nb_transits:
+  n_break: 12.0
+  power: 6.0
 time:
   min: 0.0
   max: 668.0

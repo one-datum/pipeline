@@ -1,9 +1,10 @@
 dataset_name: "edr3"
-base_table_filename: "resources/data/edr3-rv-good-plx-result.fits.gz"
-install_noise_model: true
+base_table_filename: "edr3-rv-good-plx-result.fits.gz"
 noise_config_file: "config/noise.yaml"
 
-simulate_catalog: false
+remote_basedir: "remote"
+results_basedir: "results"
+
 sims_config_file: "config/sims.yaml"
 
 gaia:

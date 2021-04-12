@@ -1,5 +1,3 @@
 dataset_name: "sims"
 base_table_filename: "resources/data/edr3-rv-good-plx-result.fits.gz"
-install_noise_model: false
-simulate_catalog: true
 sims_config_file: "config/sims.yaml"

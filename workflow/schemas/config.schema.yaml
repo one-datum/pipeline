@@ -10,10 +10,15 @@ properties:
   base_table_filename:
     type: string
 
+  remote_basedir:
+    type: string
+  results_basedir:
+    type: string
+  log_basedir:
+    type: string
+
   noise_config_file:
     type: string
-  install_noise_model:
-    type: boolean
 
   gaia:
     type: object

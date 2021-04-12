@@ -1,4 +1,3 @@
 dataset_name: "test_noise_model"
 base_table_filename: "tests/noise_model/catalog.fits.gz"
-install_noise_model: false
 noise_config_file: "tests/noise_model/noise.yaml"

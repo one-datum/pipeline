@@ -11,10 +11,10 @@ localrules: get_data
 
 rule get_data:
     output:
-        "resources/data/{filename}"
+        get_remote_filename("{filename}")
     params:
         url=lambda wildcards: URLS[wildcards[0]]
     log:
-        "results/logs/remote/{filename}.log"
+        get_log_filename("remote/{filename}.log")
     shell:
         "curl -L \"{params.url}\" -o {output} 2> {log}"

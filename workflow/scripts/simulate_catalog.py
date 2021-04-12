@@ -4,13 +4,31 @@
 import fitsio
 import kepler
 import numpy as np
+from scipy.special import gamma
 import yaml
+
+
+def simulate_nb_transits(random, N, x0, alpha):
+    u = random.uniform(0, 1, N)
+    x = np.empty_like(u)
+
+    alpha = 6.0
+    x0 = 12.0
+    A = gamma(alpha) / (x0 * (gamma(alpha) + gamma(alpha - 1)))
+
+    low = u < A * x0
+    x[low] = u[low] / A
+    x[~low] = x0 * ((1 - alpha) * (u[~low] - A * x0) / (A * x0) + 1) ** (
+        1 / (1 - alpha)
+    )
+    x = np.ceil(x)
+    return x.astype(np.int32)
+
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", required=True, type=str)
     parser.add_argument("-o", "--output", required=True, type=str)
     parser.add_argument("-c", "--config", required=True, type=str)
     args = parser.parse_args()
@@ -18,19 +36,18 @@ if __name__ == "__main__":
     with open(args.config, "r") as f:
         config = yaml.load(f.read(), Loader=yaml.FullLoader)
 
-    print("Loading data...")
-    data = fitsio.read(
-        args.input, columns=["dr2_rv_nb_transits", "dr2_radial_velocity_error"]
-    )
-    max_rv_err = data["dr2_radial_velocity_error"].max()
-
     print("Simulating model...")
-    random = np.random.default_rng(config["seed"])
+    random = np.random.default_rng(int(config["seed"]))
     num_sims = int(config["num_sims"])
+    max_rv_err = float(config["max_rv_error"])
 
-    nb_transits = data["dr2_rv_nb_transits"][
-        random.integers(0, len(data), num_sims)
-    ]
+    # Simulate number of transits using approximate power law model
+    nb_transits = simulate_nb_transits(
+        random,
+        num_sims,
+        config["nb_transits"]["n_break"],
+        config["nb_transits"]["power"],
+    )
 
     # Parameters
     rv_est_uncert = np.exp(

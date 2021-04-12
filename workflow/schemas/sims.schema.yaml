@@ -4,9 +4,19 @@ description: Configuration file for simulated catalogs
 type: object
 properties:
   seed:
-    type: integer
+    type: number
   num_sims:
-    type: integer
+    type: number
+  max_rv_error:
+    type: number
+
+  nb_transits:
+    type: object
+    properties:
+      n_break:
+        type: number
+      power:
+        type: number
 
   time:
     type: object
