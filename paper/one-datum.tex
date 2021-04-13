@@ -136,6 +136,38 @@ Therefore, we can compute the $p$-value for this null hypothesis as
 This is a useful number since, in principle, it can be used to construct a catalog with a specific false positive rate.
 Some more words about $p$-values.
 
+\section{Completeness \& reliability}
+
+We would like to characterize the efficiency with which our method detects astrophysical signals from companions.
+In other words we want to estimate the \emph{completeness} of our survey.
+To do this, we use simulated injection and recovery tests where we generate simulated data with a known signal and attempt to recover it with our pipeline.
+In particular, we will focus on characterizing the survey completeness as a function of the radial velocity measurement uncertainty and semi-amplitude, integrated over all of the other dimensions.
+There are other parameters that affect the detection thresholds including, most importantly, the number of RV transits, but these are second order effects and we will marginalize over these effects using realistic distributions.
+
+We use an approximate broken power-law model for the number of radial velocity transits:
+\begin{eqnarray}
+  \label{eq:nb-transits}
+p(T_n) &\propto& \left\{\begin{array}{ll}
+  1 & T_n < T_\mathrm{break} \\
+  (T_n / T_\mathrm{break})^{-\alpha} & \mathrm{otherwise}
+\end{array} \right.
+\end{eqnarray}
+where the parameters are set to approximately match the observed distribution.
+These parameters are set as follows: the breakpoint is $T_n = 12$ and the power-law index is $\alpha = 6$.
+As demonstrated by SOMEFIGURE, this approximate distribution is a reasonably good fit.
+
+Otherwise we sample the other parameters period, RV semi-amplitude, phase, eccentricity, argument of periasteron, and per-transit measurement uncertainty from the simple distributions listed in SOMETABLE.
+
+Then we simulate an RV time series with $T_n$ observations sampled from Equation~\ref{eq:nb-transits} and compute the sample variance.
+Then for consistency, we compute the floored and scaled ``error'' $\epsilon$ used to construct the \Gaia\ catalog (SOMEEQUATION) and, like the real catalog, mark any with $\epsilon > 20\,\mathrm{km/s}$ as non-detections.
+Using this catalog, we evaluate the $p$-value for each simulated target, and then estimate its RV semi-amplitude.
+Figure SOMEFIGURE shows the recovery rate as a function of RV semi-amplitude and per-transit measurement uncertainty.
+At small semi-amplitude, the injected signals are not recovered since the variance is too small to distinguish from the measurement noise.
+At large semi-amplitude, the signals are not recovered because the catalog is censored at large RV ``error'' ($\epsilon > 20\,\mathrm{km/s}$).
+Figure SOMEOTHERFIGURE shows the inferred semi-amplitude for these simulations as a function of the true value.
+
+These measurements don't fully capture all the limitations of this inference, but we will try to address some of those below by comparing to other binary surveys.
+
 \section{Bulk radial velocity inference}
 
 \section{Artisanal radial velocities}
