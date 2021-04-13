@@ -15,6 +15,8 @@ rule get_data:
         get_remote_filename("{filename}")
     params:
         url=lambda wildcards: URLS[wildcards[0]]
+    conda:
+        "../envs/environment.yml"
     log:
         get_log_filename("remote/{filename}.log")
     shell:

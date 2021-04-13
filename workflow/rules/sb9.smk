@@ -7,6 +7,8 @@ rule sb9_data:
         "resources/data/SB9public.tar.gz"
     output:
         directory(get_remote_filename("SB9public"))
+    conda:
+        "../envs/environment.yml"
     log:
         get_log_filename("sb9/data.log")
     shell:

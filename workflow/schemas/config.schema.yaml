@@ -17,6 +17,9 @@ properties:
   log_basedir:
     type: string
 
+  det_pval_thresh:
+    type: number
+
   noise_config_file:
     type: string
 

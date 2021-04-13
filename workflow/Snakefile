@@ -10,8 +10,18 @@ include: "rules/remote.smk"
 include: "rules/noise.smk"
 include: "rules/sb9.smk"
 include: "rules/bulk.smk"
-include: "rules/sims.smk"
+include: "rules/simulations.smk"
 
 rule all:
     input:
-        get_final_output()
+        get_filename_for_dataset("bulk/processed.fits.gz"),
+        get_filename_for_dataset("simulations/completeness")
+
+rule catalog:
+    input:
+        get_filename_for_dataset("bulk/processed.fits.gz")
+
+
+rule completeness:
+    input:
+        get_filename_for_dataset("simulations/completeness")

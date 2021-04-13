@@ -1,5 +1,5 @@
 seed: 948302
-num_sims: 20000
+num_sims: 100000
 max_rv_error: 20.0
 nb_transits:
   n_break: 12.0
@@ -17,5 +17,5 @@ semiamp:
   min: 0.1
   max: 500.0
 ecc:
-  min: 0.0
-  max: 0.9
+  beta_a: 0.867
+  beta_b: 3.03

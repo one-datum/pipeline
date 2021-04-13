@@ -53,7 +53,7 @@ properties:
   ecc:
     type: object
     properties:
-      min:
+      beta_a:
         type: number
-      max:
+      beta_b:
         type: number

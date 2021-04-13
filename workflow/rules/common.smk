@@ -9,11 +9,13 @@ validate(noise_config, "../schemas/noise.schema.yaml")
 
 with open(config["sims_config_file"], "r") as f:
     sims_config = yaml.load(f.read(), Loader=yaml.FullLoader)
-validate(sims_config, "../schemas/sims.schema.yaml")
+validate(sims_config, "../schemas/simulations.schema.yaml")
 
 
-def get_final_output():
-    return ["results/{0}/bulk/processed.fits.gz".format(config["dataset_name"])]
+def get_filename_for_dataset(filename):
+    return get_results_filename(
+        f"{config['dataset_name']}/{filename}"
+    )
 
 
 def get_remote_filename(filename):

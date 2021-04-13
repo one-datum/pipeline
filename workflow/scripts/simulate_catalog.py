@@ -71,7 +71,9 @@ if __name__ == "__main__":
             num_sims,
         )
     )
-    ecc = random.uniform(config["ecc"]["min"], config["ecc"]["max"], num_sims)
+    ecc = random.beta(
+        config["ecc"]["beta_a"], config["ecc"]["beta_b"], num_sims
+    )
     omega = np.exp(random.uniform(-np.pi, np.pi, num_sims))
     phase = np.exp(random.uniform(0, 2 * np.pi, num_sims))
     cosw = np.cos(omega)
