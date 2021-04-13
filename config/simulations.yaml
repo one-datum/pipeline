@@ -1,0 +1,21 @@
+seed: 948302
+num_sims: 100000
+max_rv_error: 20.0
+nb_transits:
+  n_break: 12.0
+  power: 6.0
+time:
+  min: 0.0
+  max: 668.0
+rv_est_uncert:
+  min: 0.1
+  max: 30.0
+period:
+  min: 1.0
+  max: 800.0
+semiamp:
+  min: 0.1
+  max: 500.0
+ecc:
+  beta_a: 0.867
+  beta_b: 3.03

@@ -1,6 +1,6 @@
 # one-datum
 
-What can we infer about an orbit from the Gaia RV or astrometric jitter?
+What can we infer about an orbit from the Gaia RV jitter?
 
 ## Usage
 
@@ -13,25 +13,59 @@ To get started, you should create a simple conda environment and install _snakem
 
 ```bash
 conda install -c conda-forge mamba
-mamba create -n one-datum -c conda-forge bioconda::snakemake-minimal
+mamba create -n one-datum -c conda-forge bioconda::snakemake-minimal networkx pygraphviz
 conda activate one-datum
 ```
 
-Then you can clone this repository to get the pipeline workflow.
-Note that the results files will be stored in the `results` and `resources` subdirectories so make sure that you run this command on a drive with a fairly large quota (about TBD will be required):
+Then you can clone this repository to get the pipeline workflow:
 
 ```bash
 git clone https://github.com/dfm/one-datum.git
 cd one-datum
 ```
 
-### Inferring per-transit RV uncertainty
 
-This is done on a grid in BP-RP color and apparent G-magnitude. Use
+### Configuration
 
-```bash
-snakemake infer_noise --cores all --use-conda --conda-frontend mamba
+You can configure the workflow using a custom `config.yaml` and/or a [Snakemake profile](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles).
+For example, I normally use a profile with the following settings:
+
+```yaml
+# $HOME/.config/snakemake/one-datum/config.yaml
+cores: all
+use-conda: true
+conda-frontend: mamba
 ```
 
-to run with the default arguments.
-This will save a file `rv_uncertainty_grid.fits` in your data directory.
+and then I would execute Snakemake as follows:
+
+```bash
+snakemake --profile=one-datum
+```
+
+where `one-datum` is the name of the directory where the profile configuration file is saved.
+
+Take a look at the [default config files](https://github.com/dfm/one-datum/tree/main/config) for all the options, but you might want to explicitly set `remote_basedir` and `results_basedir` parameters so that large files don't get written to your working directory.
+
+
+### Running the pipeline
+
+The following command should run the full pipeline and produce a catalog estimated binary parameters for all Gaia EDR3 radial velocity sources:
+
+```bash
+snakemake --profile=one-datum
+```
+
+Make sure that you run this on a beefy machine.
+
+
+### Running simulations & estimating completeness
+
+You can also run some simulations for characterizing the pipeline and computing the completeness.
+To do that, run:
+
+```bash
+snakemake --profile=one-datum completeness
+```
+
+The settings for the simulations can all be found in the `config/simulations.yaml` configuration file.

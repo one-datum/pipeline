@@ -10,10 +10,18 @@ properties:
   base_table_filename:
     type: string
 
+  remote_basedir:
+    type: string
+  results_basedir:
+    type: string
+  log_basedir:
+    type: string
+
+  det_pval_thresh:
+    type: number
+
   noise_config_file:
     type: string
-  install_noise_model:
-    type: boolean
 
   gaia:
     type: object

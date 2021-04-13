@@ -112,12 +112,6 @@ if __name__ == "__main__":
 
     print("Loading data...")
     data = fitsio.read(args.input)
-    num_rows = len(data)
-    max_nb_transits = data["dr2_rv_nb_transits"].max()
-
-    # Simulate the RV error model
-    print("Simulating model...")
-    ln_semiamp, rate_param = precompute_model(data["dr2_rv_nb_transits"].max())
 
     # Compute the ingredients for probabilistic model
     ln_sigma = np.log(data["rv_est_uncert"])
@@ -125,6 +119,24 @@ if __name__ == "__main__":
     eps = data["dr2_radial_velocity_error"]
     sample_variance = 2 * nb_transits * (eps ** 2 - 0.11 ** 2) / np.pi
     statistic = (sample_variance * (nb_transits - 1)).astype(np.float32)
+    pval = 1 - scipy.stats.chi2(nb_transits - 1).cdf(
+        statistic * np.exp(-2 * ln_sigma)
+    ).astype(np.float32)
+    valid = (
+        (nb_transits >= 3)
+        & (pval < 0.01)
+        & np.isfinite(ln_sigma)
+        & np.isfinite(eps)
+    )
+    ln_sigma = ln_sigma[valid]
+    nb_transits = nb_transits[valid]
+    statistic = statistic[valid]
+    max_nb_transits = data["dr2_rv_nb_transits"].max()
+    num_rows = len(statistic)
+
+    # Simulate the RV error model
+    print("Simulating model...")
+    ln_semiamp, rate_param = precompute_model(max_nb_transits)
 
     print("Processing shared...")
     tracemalloc.start()
@@ -154,7 +166,7 @@ if __name__ == "__main__":
                             nb_transits[n : n + block_size],
                             statistic[n : n + block_size],
                         )
-                        for n in range(0, len(data), block_size)
+                        for n in range(0, num_rows, block_size)
                     ],
                 )
             )
@@ -165,10 +177,14 @@ if __name__ == "__main__":
 
     # Save the results
     inds = np.concatenate(results, axis=0)
-    ln_semiamp = ln_semiamp[inds]
+    result = np.empty((len(data), len(QUANTILES)), dtype=np.float32)
+    result[:] = np.nan
+    result[valid] = ln_semiamp[inds]
     data = append_fields(
         data,
-        [f"rv_semiamp_p{(100 * q):.0f}" for q in QUANTILES],
-        [np.exp(ln_semiamp[:, q]) for q in range(len(QUANTILES))],
+        ["rv_variance", "rv_pval"]
+        + [f"rv_semiamp_p{(100 * q):.0f}" for q in QUANTILES],
+        [sample_variance, pval]
+        + [np.exp(result[:, q]) for q in range(len(QUANTILES))],
     )
     fitsio.write(args.output, data, clobber=True)

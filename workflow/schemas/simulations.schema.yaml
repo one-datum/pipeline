@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: Configuration file for simulated catalogs
+
+type: object
+properties:
+  seed:
+    type: number
+  num_sims:
+    type: number
+  max_rv_error:
+    type: number
+
+  nb_transits:
+    type: object
+    properties:
+      n_break:
+        type: number
+      power:
+        type: number
+
+  time:
+    type: object
+    properties:
+      min:
+        type: number
+      max:
+        type: number
+
+  rv_est_uncert:
+    type: object
+    properties:
+      min:
+        type: number
+      max:
+        type: number
+
+  period:
+    type: object
+    properties:
+      min:
+        type: number
+      max:
+        type: number
+
+  semiamp:
+    type: object
+    properties:
+      min:
+        type: number
+      max:
+        type: number
+
+  ecc:
+    type: object
+    properties:
+      beta_a:
+        type: number
+      beta_b:
+        type: number
