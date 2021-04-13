@@ -59,6 +59,13 @@ snakemake --profile=one-datum
 Make sure that you run this on a beefy machine.
 
 
-### Running simulations
+### Running simulations & estimating completeness
 
-TBD
+You can also run some simulations for characterizing the pipeline and computing the completeness.
+To do that, run:
+
+```bash
+snakemake --profile=one-datum completeness
+```
+
+The settings for the simulations can all be found in the `config/simulations.yaml` configuration file.
