@@ -2,8 +2,7 @@
 
 rule infer_noise:
     input:
-        install=get_results_filename("install.done"),
-        base_table=get_remote_filename(config["base_table_filename"])
+        get_remote_filename(config["base_table_filename"])
     output:
         get_results_filename("{dataset}/noise/raw-noise-model.fits")
     params:
@@ -15,7 +14,7 @@ rule infer_noise:
     shell:
         """
         python workflow/scripts/infer_noise.py \\
-            --input {input.base_table} \\
+            --input {input} \\
             --output {output} \\
             --config {params.config} \\
             &> {log}

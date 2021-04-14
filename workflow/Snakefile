@@ -5,7 +5,6 @@ report: "report/workflow.rst"
 configfile: "config/config.yaml"
 
 include: "rules/common.smk"
-include: "rules/install.smk"
 include: "rules/remote.smk"
 include: "rules/noise.smk"
 include: "rules/sb9.smk"
