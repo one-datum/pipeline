@@ -8,19 +8,24 @@ include: "rules/common.smk"
 include: "rules/remote.smk"
 include: "rules/noise.smk"
 include: "rules/sb9.smk"
-include: "rules/bulk.smk"
+include: "rules/inference.smk"
 include: "rules/simulations.smk"
+include: "rules/figures.smk"
 
 rule all:
     input:
-        get_filename_for_dataset("bulk/processed.fits.gz"),
-        get_filename_for_dataset("simulations/completeness")
+        get_filename_for_dataset("inference/inferred.fits.gz"),
+        get_filename_for_dataset("simulations/inferred.fits.gz"),
+        expand(get_filename_for_dataset("figures/{figure}.png"), figure=FIGURES)
 
 rule catalog:
     input:
-        get_filename_for_dataset("bulk/processed.fits.gz")
+        get_filename_for_dataset("inference/inferred.fits.gz")
 
-
-rule completeness:
+rule simulations:
     input:
-        get_filename_for_dataset("simulations/completeness")
+        get_filename_for_dataset("simulations/inferred.fits.gz")
+
+rule figures:
+    input:
+        expand(get_filename_for_dataset("figures/{figure}.png"), figure=FIGURES)
