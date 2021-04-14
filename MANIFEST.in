@@ -1,9 +1,0 @@
-exclude .*
-exclude Dockerfile
-prune .github
-prune config
-prune notebooks
-prune paper
-prune resources
-prune results
-prune workflow

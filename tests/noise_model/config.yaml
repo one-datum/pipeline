@@ -1,4 +1,0 @@
-dataset_name: "test_noise_model"
-base_table_filename: "catalog.fits.gz"
-remote_basedir: "tests/noise_model"
-noise_config_file: "tests/noise_model/noise.yaml"
