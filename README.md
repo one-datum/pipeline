@@ -13,15 +13,15 @@ To get started, you should create a simple conda environment and install _snakem
 
 ```bash
 conda install -c conda-forge mamba
-mamba create -n one-datum -c conda-forge bioconda::snakemake-minimal networkx pygraphviz
+mamba create -n one-datum -c conda-forge bioconda::snakemake
 conda activate one-datum
 ```
 
 Then you can clone this repository to get the pipeline workflow:
 
 ```bash
-git clone https://github.com/dfm/one-datum.git
-cd one-datum
+git clone https://github.com/one-datum/pipeline.git
+cd pipeline
 ```
 
 
@@ -45,7 +45,7 @@ snakemake --profile=one-datum
 
 where `one-datum` is the name of the directory where the profile configuration file is saved.
 
-Take a look at the [default config files](https://github.com/dfm/one-datum/tree/main/config) for all the options, but you might want to explicitly set `remote_basedir` and `results_basedir` parameters so that large files don't get written to your working directory.
+Take a look at the [default config files](https://github.com/one-datum/pipeline/tree/main/config) for all the options, but you might want to explicitly set `remote_basedir` and `results_basedir` parameters so that large files don't get written to your working directory.
 
 
 ### Running the pipeline
