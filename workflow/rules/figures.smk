@@ -2,6 +2,7 @@ FIGURES = [
     "completeness",
     "recovered",
     "noise_model",
+    "binary_fraction_cmd",
 ]
 
 rule figures_completeness:
@@ -13,7 +14,7 @@ rule figures_completeness:
             category="Simulations",
         )
     params:
-        threshold=config["det_pval_thresh"],
+        threshold=config["det_pval_thresh"]
     conda:
         "../envs/environment.yml"
     log:
@@ -36,7 +37,7 @@ rule figures_recovered:
             category="Simulations",
         )
     params:
-        threshold=config["det_pval_thresh"],
+        threshold=config["det_pval_thresh"]
     conda:
         "../envs/environment.yml"
     log:
@@ -67,5 +68,28 @@ rule figures_noise_model:
         python workflow/scripts/figures/noise_model.py \\
             --input {input} \\
             --output {output} \\
+            &> {log}
+        """
+
+rule figures_binary_fraction_cmd:
+    input:
+        get_results_filename("{dataset}/inference/inferred.fits.gz")
+    output:
+        report(
+            get_results_filename("{dataset}/figures/binary_fraction_cmd.png"),
+            category="Catalog",
+        )
+    params:
+        threshold=config["det_pval_thresh"]
+    conda:
+        "../envs/environment.yml"
+    log:
+        get_log_filename("{dataset}/figures/binary_fraction_cmd.log")
+    shell:
+        """
+        python workflow/scripts/figures/binary_fraction_cmd.py \\
+            --input {input} \\
+            --output {output} \\
+            --threshold {params.threshold} \\
             &> {log}
         """
