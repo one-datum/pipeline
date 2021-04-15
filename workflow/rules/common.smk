@@ -19,7 +19,7 @@ def get_filename_for_dataset(filename):
 
 
 def get_remote_filename(filename):
-    return f"{config.get('remote_basedir', 'remote')}/{filename}"
+    return f"{config.get('results_basedir', 'results')}/{filename}"
 
 
 def get_results_filename(filename):

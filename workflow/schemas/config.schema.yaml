@@ -10,8 +10,6 @@ properties:
   base_table_filename:
     type: string
 
-  remote_basedir:
-    type: string
   results_basedir:
     type: string
   log_basedir:

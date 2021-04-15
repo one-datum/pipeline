@@ -1,8 +1,6 @@
 dataset_name: "edr3"
-base_table_filename: "edr3-rv-good-plx-result.fits.gz"
+base_table_filename: "edr3/base.fits.gz"
 noise_config_file: "config/noise.yaml"
-
-remote_basedir: "remote"
 results_basedir: "results"
 
 sims_config_file: "config/simulations.yaml"

@@ -45,7 +45,7 @@ snakemake --profile=one-datum
 
 where `one-datum` is the name of the directory where the profile configuration file is saved.
 
-Take a look at the [default config files](https://github.com/one-datum/pipeline/tree/main/config) for all the options, but you might want to explicitly set `remote_basedir` and `results_basedir` parameters so that large files don't get written to your working directory.
+Take a look at the [default config files](https://github.com/one-datum/pipeline/tree/main/config) for all the options, but you might want to explicitly set the `results_basedir` parameter so that large files don't get written to your working directory.
 
 
 ### Running the pipeline
