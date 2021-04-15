@@ -1,6 +1,6 @@
 rule noise_infer:
     input:
-        get_remote_filename(config["base_table_filename"])
+        get_results_filename("{dataset}/base.fits.gz")
     output:
         get_results_filename("{dataset}/noise/raw.fits")
     params:
@@ -42,7 +42,7 @@ rule noise_postprocess:
 rule noise_apply:
     input:
         noise_model=get_results_filename("{dataset}/noise/processed.fits"),
-        base_table=get_remote_filename(config["base_table_filename"])
+        base_table=get_results_filename("{dataset}/base.fits.gz")
     output:
         get_results_filename("{dataset}/noise/applied.fits.gz")
     conda:

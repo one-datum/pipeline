@@ -6,11 +6,12 @@ configfile: "config/config.yaml"
 
 include: "rules/common.smk"
 include: "rules/remote.smk"
+include: "rules/archive.smk"
 include: "rules/noise.smk"
-include: "rules/sb9.smk"
 include: "rules/inference.smk"
 include: "rules/simulations.smk"
 include: "rules/figures.smk"
+include: "rules/xmatch.smk"
 
 rule all:
     input:
