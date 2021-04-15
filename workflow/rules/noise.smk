@@ -1,5 +1,3 @@
-# Rules to infer the noise model
-
 rule noise_infer:
     input:
         get_remote_filename(config["base_table_filename"])

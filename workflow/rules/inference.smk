@@ -1,5 +1,3 @@
-# Bulk inference model
-
 rule inference:
     input:
         get_results_filename("{dataset}/noise/applied.fits.gz")
