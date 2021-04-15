@@ -22,21 +22,40 @@ det &= data["dr2_rv_nb_transits"] >= 3
 det &= data["rv_pval"] < args.threshold
 
 # Plot the contour levels
-fig, ax = plt.subplots(1, 1, figsize=(7, 6))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6), sharey=True)
+
 x = np.log10(data["sim_semiamp"])
 y = np.log10(data["rv_est_uncert"])
 denom, bx, by = np.histogram2d(x, y, (15, 12))
 num, _, _ = np.histogram2d(x[det], y[det], (bx, by))
-c = ax.contourf(
-    10 ** bx[:-1],
+c = ax1.contourf(
     10 ** by[:-1],
-    100 * (num / denom).T,
+    10 ** bx[:-1],
+    100 * (num / denom),
     levels=np.linspace(0, 100, 9),
 )
-fig.colorbar(c, label="completeness [%]")
-ax.set_xscale("log")
-ax.set_yscale("log")
-ax.set_ylabel("per-transit uncertainty [km/s]")
-ax.set_xlabel("K [km/s]")
-fig.savefig(args.output, bbox_inches="tight", dpi=150)
-fig.savefig(args.output.replace(".png", ".pdf"), bbox_inches="tight")
+ax1.set_xscale("log")
+ax1.set_yscale("log")
+ax1.set_xlabel("per-transit uncertainty [km/s]")
+ax1.set_ylabel("K [km/s]")
+
+x = np.log10(data["sim_semiamp"])
+y = np.log10(data["dr2_rv_nb_transits"])
+denom, bx, by = np.histogram2d(x, y, (15, 12))
+num, _, _ = np.histogram2d(x[det], y[det], (bx, by))
+c = ax2.contourf(
+    10 ** by[:-1],
+    10 ** bx[:-1],
+    100 * (num / denom),
+    levels=np.linspace(0, 100, 9),
+)
+ax2.set_xscale("log")
+ax2.set_yscale("log")
+ax2.set_xlabel("number of transits")
+# ax2.set_ylabel("K [km/s]")
+
+fig.subplots_adjust(right=0.85, wspace=0.04)
+cbar_ax = fig.add_axes([0.854, 0.125, 0.02, 0.75])
+fig.colorbar(c, label="completeness [%]", cax=cbar_ax)
+
+fig.savefig(args.output, bbox_inches="tight")

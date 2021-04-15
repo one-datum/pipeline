@@ -42,12 +42,15 @@ if __name__ == "__main__":
     max_rv_err = float(config["max_rv_error"])
 
     # Simulate number of transits using approximate power law model
-    nb_transits = simulate_nb_transits(
-        random,
-        num_sims,
-        config["nb_transits"]["n_break"],
-        config["nb_transits"]["power"],
-    )
+    nb_transits = np.floor(
+        np.exp(random.uniform(0.0, np.log(200), num_sims))
+    ).astype(np.int32)
+    # nb_transits = simulate_nb_transits(
+    #     random,
+    #     num_sims,
+    #     config["nb_transits"]["n_break"],
+    #     config["nb_transits"]["power"],
+    # )
 
     # Parameters
     rv_est_uncert = np.exp(

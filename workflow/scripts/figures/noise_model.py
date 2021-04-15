@@ -3,10 +3,10 @@
 
 import argparse
 
-from astropy.io import fits
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy.io import fits
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", required=True, type=str)
@@ -78,5 +78,4 @@ plt.ylim(plt.ylim()[::-1])
 plt.ylabel("$m_\mathrm{G}$")
 plt.xlabel("$G_\mathrm{BP}-G_\mathrm{RP}$")
 
-plt.savefig(args.output, bbox_inches="tight", dpi=150)
-plt.savefig(args.output.replace(".png", ".pdf"), bbox_inches="tight")
+plt.savefig(args.output, bbox_inches="tight")

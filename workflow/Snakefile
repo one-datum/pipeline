@@ -16,7 +16,7 @@ rule all:
     input:
         get_filename_for_dataset("inference/inferred.fits.gz"),
         get_filename_for_dataset("simulations/inferred.fits.gz"),
-        expand(get_filename_for_dataset("figures/{figure}.png"), figure=FIGURES)
+        expand(get_filename_for_dataset("figures/{figure}.pdf"), figure=FIGURES)
 
 rule catalog:
     input:
@@ -28,4 +28,4 @@ rule simulations:
 
 rule figures:
     input:
-        expand(get_filename_for_dataset("figures/{figure}.png"), figure=FIGURES)
+        expand(get_filename_for_dataset("figures/{figure}.pdf"), figure=FIGURES)

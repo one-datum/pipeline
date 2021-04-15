@@ -2,6 +2,7 @@ FIGURES = [
     "completeness",
     "recovered",
     "noise_model",
+    "sigma_cmd",
     "binary_fraction_cmd",
 ]
 
@@ -10,7 +11,7 @@ rule figures_completeness:
         get_results_filename("{dataset}/simulations/inferred.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/completeness.png"),
+            get_results_filename("{dataset}/figures/completeness.pdf"),
             category="Simulations",
         )
     params:
@@ -33,7 +34,7 @@ rule figures_recovered:
         get_results_filename("{dataset}/simulations/inferred.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/recovered.png"),
+            get_results_filename("{dataset}/figures/recovered.pdf"),
             category="Simulations",
         )
     params:
@@ -56,7 +57,7 @@ rule figures_noise_model:
         get_results_filename("{dataset}/noise/processed.fits")
     output:
         report(
-            get_results_filename("{dataset}/figures/noise_model.png"),
+            get_results_filename("{dataset}/figures/noise_model.pdf"),
             category="Noise model",
         )
     conda:
@@ -71,12 +72,32 @@ rule figures_noise_model:
             &> {log}
         """
 
+rule figures_sigma_cmd:
+    input:
+        get_results_filename("{dataset}/noise/applied.fits.gz")
+    output:
+        report(
+            get_results_filename("{dataset}/figures/sigma_cmd.pdf"),
+            category="Catalog",
+        )
+    conda:
+        "../envs/environment.yml"
+    log:
+        get_log_filename("{dataset}/figures/sigma_cmd.log")
+    shell:
+        """
+        python workflow/scripts/figures/sigma_cmd.py \\
+            --input {input} \\
+            --output {output} \\
+            &> {log}
+        """
+
 rule figures_binary_fraction_cmd:
     input:
         get_results_filename("{dataset}/inference/inferred.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/binary_fraction_cmd.png"),
+            get_results_filename("{dataset}/figures/binary_fraction_cmd.pdf"),
             category="Catalog",
         )
     params:
