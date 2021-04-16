@@ -54,7 +54,7 @@ ax2.set_yscale("log")
 ax2.set_xlabel("number of transits")
 # ax2.set_ylabel("K [km/s]")
 
-fig.subplots_adjust(right=0.85, wspace=0.04)
+fig.subplots_adjust(right=0.85, wspace=0.1)
 cbar_ax = fig.add_axes([0.854, 0.125, 0.02, 0.75])
 fig.colorbar(c, label="completeness [%]", cax=cbar_ax)
 

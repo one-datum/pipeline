@@ -1,9 +1,12 @@
 FIGURES = [
-    "completeness",
-    "recovered",
-    "noise_model",
-    "sigma_cmd",
-    "binary_fraction_cmd",
+    get_filename_for_dataset(f"figures/{figure}.pdf")
+    for figure in [
+        "completeness",
+        "recovered",
+        "noise_model",
+        "sigma_cmd",
+        "binary_fraction_cmd",
+    ]
 ]
 
 rule figures_completeness:
