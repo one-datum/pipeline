@@ -3,6 +3,8 @@ rule archive_results:
         get_results_filename("{dataset}")
     output:
         get_results_filename("{dataset}.tar.gz")
+    conda:
+        "../envs/environment.yml"
     log:
         get_log_filename("{dataset}.tar.gz.log")
     shell:
