@@ -6,6 +6,7 @@ FIGURES = [
         "noise_model",
         "sigma_cmd",
         "binary_fraction_cmd",
+        "p_value_dist",
     ]
 ]
 
@@ -112,6 +113,29 @@ rule figures_binary_fraction_cmd:
     shell:
         """
         python workflow/scripts/figures/binary_fraction_cmd.py \\
+            --input {input} \\
+            --output {output} \\
+            --threshold {params.threshold} \\
+            &> {log}
+        """
+
+rule figures_p_value_dist:
+    input:
+        get_results_filename("{dataset}/inference/inferred.fits.gz")
+    output:
+        report(
+            get_results_filename("{dataset}/figures/p_value_dist.pdf"),
+            category="Catalog",
+        )
+    params:
+        threshold=config["det_pval_thresh"]
+    conda:
+        "../envs/environment.yml"
+    log:
+        get_log_filename("{dataset}/figures/p_value_dist.log")
+    shell:
+        """
+        python workflow/scripts/figures/p_value_dist.py \\
             --input {input} \\
             --output {output} \\
             --threshold {params.threshold} \\
