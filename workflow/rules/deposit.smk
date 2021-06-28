@@ -1,6 +1,8 @@
 rule archive_figures:
     input:
-        [get_results_filename("{dataset}/figures")] + FIGURES + XMATCHES
+        directory=get_results_filename("{dataset}/figures"),
+        figures=FIGURES,
+        xmatches=XMATCHES
     output:
         get_results_filename("{dataset}/figures.tar.gz")
     conda:
@@ -9,5 +11,5 @@ rule archive_figures:
         get_log_filename("{dataset}/figures.tar.gz.log")
     shell:
         """
-        tar czvfC {output} `dirname "{input[0]}"` `basename "{input[0]}"` &> {log}
+        tar czvfC {output} `dirname "{input.directory}"` `basename "{input.directory}"` &> {log}
         """
