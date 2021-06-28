@@ -1,11 +1,13 @@
-rule archive_results:
+rule archive_figures:
     input:
-        get_results_filename("{dataset}")
+        [get_results_filename("{dataset}/figures")] + FIGURES + XMATCHES
     output:
-        get_results_filename("{dataset}.tar.gz")
+        get_results_filename("{dataset}/figures.tar.gz")
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}.tar.gz.log")
+        get_log_filename("{dataset}/figures.tar.gz.log")
     shell:
-        "tar -czvf {output} {input} &> {log}"
+        """
+        tar czvfC {output} `dirname "{input[0]}"` `basename "{input[0]}"` &> {log}
+        """

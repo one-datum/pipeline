@@ -14,7 +14,7 @@ rule xmatch_sb9:
     output:
         filename=get_results_filename("{dataset}/xmatch/sb9.fits.gz"),
         figure=report(
-            get_results_filename("{dataset}/xmatch/sb9.pdf"),
+            get_results_filename("{dataset}/figures/sb9.pdf"),
             category="Crossmatch",
         )
     conda:
@@ -40,7 +40,7 @@ rule xmatch_apogee_gold:
     output:
         filename=get_results_filename("{dataset}/xmatch/apogee-gold.fits.gz"),
         figure=report(
-            get_results_filename("{dataset}/xmatch/apogee-gold.pdf"),
+            get_results_filename("{dataset}/figures/apogee-gold.pdf"),
             category="Crossmatch",
         )
     conda:
