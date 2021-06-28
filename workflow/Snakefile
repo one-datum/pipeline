@@ -12,6 +12,7 @@ include: "rules/inference.smk"
 include: "rules/simulations.smk"
 include: "rules/figures.smk"
 include: "rules/xmatch.smk"
+include: "rules/deposit.smk"
 
 rule all:
     input:
