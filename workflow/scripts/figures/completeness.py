@@ -37,7 +37,7 @@ c = ax1.contourf(
 ax1.set_xscale("log")
 ax1.set_yscale("log")
 ax1.set_xlabel("per-transit uncertainty [km/s]")
-ax1.set_ylabel("K [km/s]")
+ax1.set_ylabel("semi-amplitude [km/s]")
 
 x = np.log10(data["sim_semiamp"])
 y = np.log10(data["dr2_rv_nb_transits"])

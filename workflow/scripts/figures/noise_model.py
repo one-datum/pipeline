@@ -24,7 +24,7 @@ mag_bins = np.linspace(hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1)
 color_bin_centers = 0.5 * (color_bins[1:] + color_bins[:-1])
 mag_bin_centers = 0.5 * (mag_bins[1:] + mag_bins[:-1])
 
-plt.figure(figsize=(5, 4))
+plt.figure(figsize=(7, 6))
 
 sigma_rv = np.exp(model)
 levels = np.exp(
@@ -59,7 +59,7 @@ plt.contourf(
 sm = plt.cm.ScalarMappable(norm=norm)
 sm.set_array([])
 
-cbar = plt.colorbar(sm, label=r"$\sigma_\mathrm{rv}$ [km/s]")
+cbar = plt.colorbar(sm, label=r"per-transit uncertainty [km/s]")
 cbar.ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
 
 plt.annotate(

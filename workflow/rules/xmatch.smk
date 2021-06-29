@@ -17,6 +17,8 @@ rule xmatch_sb9:
             get_results_filename("{dataset}/figures/sb9.pdf"),
             category="Crossmatch",
         )
+    params:
+        threshold=config["det_pval_thresh"]
     conda:
         "../envs/environment.yml"
     log:
@@ -30,6 +32,7 @@ rule xmatch_sb9:
             --kcol 'sb9_k1' \\
             --name 'SB9' \\
             --figure {output.figure} \\
+            --threshold {params.threshold} \\
             &> {log}
         """
 
@@ -43,6 +46,8 @@ rule xmatch_apogee_gold:
             get_results_filename("{dataset}/figures/apogee-gold.pdf"),
             category="Crossmatch",
         )
+    params:
+        threshold=config["det_pval_thresh"]
     conda:
         "../envs/environment.yml"
     log:
@@ -58,6 +63,7 @@ rule xmatch_apogee_gold:
             --kerrcol 'MAP_K_err' \\
             --name 'APOGEE' \\
             --figure {output.figure} \\
+            --threshold {params.threshold} \\
             &> {log}
         """
 

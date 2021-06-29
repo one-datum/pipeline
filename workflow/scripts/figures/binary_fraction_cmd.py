@@ -62,7 +62,7 @@ plt.pcolor(
 
 plt.ylim(plt.ylim()[::-1])
 plt.colorbar(label="non-null fraction")
-plt.xlabel("observed BP - RP")
+plt.xlabel("$G_\mathrm{BP} - G_\mathrm{RP}$")
 plt.ylabel("$m_\mathrm{G} +$ DM")
 
 plt.savefig(args.output, bbox_inches="tight")

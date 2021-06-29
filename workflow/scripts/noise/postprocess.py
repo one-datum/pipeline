@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     # Finally, smooth the model using a Gaussian filter
     dc = args.color_smooth / (color_bins[1] - color_bins[0])
-    dm = args.color_smooth / (mag_bins[1] - mag_bins[0])
+    dm = args.mag_smooth / (mag_bins[1] - mag_bins[0])
     mu_smooth = gaussian_filter(mu_full, (dm, dc))
 
     # Save the results

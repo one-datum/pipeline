@@ -16,6 +16,7 @@ parser.add_argument("--source-id-col", type=str)
 parser.add_argument("--kcol", type=str)
 parser.add_argument("--kerrcol", type=str)
 parser.add_argument("--figure", type=str)
+parser.add_argument("--threshold", type=str)
 parser.add_argument("--name", type=str, default="catalog")
 args = parser.parse_args()
 
@@ -61,6 +62,8 @@ c = ax.scatter(
     c=joined["rv_pval"],
     s=5,
     zorder=10,
+    vmin=0,
+    vmax=args.threshold,
     edgecolor="none",
     cmap="inferno",
 )
