@@ -68,6 +68,10 @@ if __name__ == "__main__":
     dm = args.mag_smooth / (mag_bins[1] - mag_bins[0])
     mu_smooth = gaussian_filter(mu_full, (dm, dc))
 
+    # Update this so that only the out of bounds parts are smoothed
+    valid = np.isfinite(mu_base)
+    mu_smooth[valid] = mu_base[valid]
+
     # Save the results
     hdr["col_smth"] = args.color_smooth
     hdr["mag_smth"] = args.mag_smooth
@@ -75,7 +79,7 @@ if __name__ == "__main__":
         [
             fits.PrimaryHDU(header=hdr),
             fits.ImageHDU(mu_smooth),
-            fits.ImageHDU(np.isfinite(mu_base).astype(np.int32)),
+            fits.ImageHDU(valid.astype(np.int32)),
             fits.ImageHDU(count),
         ]
     ).writeto(args.output, overwrite=True)
