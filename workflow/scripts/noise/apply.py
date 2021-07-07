@@ -16,32 +16,20 @@ def get_uncertainty_model(
     *,
     bounds_error: bool = False,
     fill_value: float = np.nan,
-) -> Tuple[RegularGridInterpolator, RegularGridInterpolator]:
+) -> RegularGridInterpolator:
     with fits.open(filename) as f:
-        hdr = f[0].header
-        mu = f[1].data
-        mask = f[2].data
+        mag_bins = f[1].data
+        color_bins = f[2].data
+        intercept = f[3].data
+        slope = f[4].data
+        mask = f[5].data
 
-    color_bins = np.linspace(
-        hdr["MIN_COL"], hdr["MAX_COL"], hdr["NUM_COL"] + 1
-    )
-    mag_bins = np.linspace(hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1)
+    X = 0.5 * (mag_bins[1:] + mag_bins[:-1])
+    Y = 0.5 * (color_bins[1:] + color_bins[:-1])
+    Z = np.stack((intercept, slope, mask), axis=-1)
+
     return RegularGridInterpolator(
-        [
-            0.5 * (mag_bins[1:] + mag_bins[:-1]),
-            0.5 * (color_bins[1:] + color_bins[:-1]),
-        ],
-        mu,
-        bounds_error=bounds_error,
-        fill_value=fill_value,
-    ), RegularGridInterpolator(
-        [
-            0.5 * (mag_bins[1:] + mag_bins[:-1]),
-            0.5 * (color_bins[1:] + color_bins[:-1]),
-        ],
-        mask.astype(np.float32),
-        bounds_error=False,
-        fill_value=0.0,
+        [X, Y], Z, bounds_error=bounds_error, fill_value=fill_value
     )
 
 
@@ -68,14 +56,16 @@ def load_data(
 def compute_ln_sigma(
     data: np.recarray, *, filename: str, step: int = 500
 ) -> Tuple[np.ndarray, np.ndarray]:
-    noise_model, mask_model = get_uncertainty_model(filename)
+    noise_model = get_uncertainty_model(filename)
     ln_sigma = np.empty(len(data), dtype=np.float32)
     ln_sigma[:] = np.nan
     confidence = np.zeros(len(data), dtype=np.float32)
     for n in range(0, len(data), step):
-        mask = np.isfinite(
-            data["phot_g_mean_mag"][n : n + step]
-        ) & np.isfinite(data["bp_rp"][n : n + step])
+        mask = np.isfinite(data["phot_g_mean_mag"][n : n + step])
+        mask &= np.isfinite(data["bp_rp"][n : n + step])
+        mask &= np.isfinite(data["parallax"][n : n + step])
+        mask &= data["parallax"][n : n + step] > 0
+
         X = np.concatenate(
             (
                 data["phot_g_mean_mag"][n : n + step][mask, None],
@@ -83,8 +73,14 @@ def compute_ln_sigma(
             ),
             axis=1,
         )
-        ln_sigma[n : n + step][mask] = noise_model(X)
-        confidence[n : n + step][mask] = mask_model(X)
+        Z = noise_model(X)
+        b = Z[..., 0]
+        m = Z[..., 1]
+        c = Z[..., 2]
+        ln_sigma[n : n + step][mask] = b + m * np.log(
+            data["parallax"][n : n + step]
+        )
+        confidence[n : n + step][mask] = c
     return ln_sigma, confidence
 
 

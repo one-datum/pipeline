@@ -6,6 +6,31 @@ from astropy.io import fits
 from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter
 
+
+def interpolate(X, Y, Z, x0, y0):
+    x = x0
+    Z1 = np.zeros_like(Z)
+    for n in range(len(y0)):
+        x_ref = X[:, n]
+        y_ref = Z[:, n]
+        mask = np.isfinite(x_ref) & np.isfinite(y_ref)
+        Z1[:, n] = interp1d(
+            x_ref[mask], y_ref[mask], fill_value="extrapolate"
+        )(x)
+
+    x = y0
+    Z2 = np.zeros_like(Z)
+    for n in range(len(mag_bin_centers)):
+        x_ref = Y[n, :]
+        y_ref = Z[n, :]
+        mask = np.isfinite(x_ref) & np.isfinite(y_ref)
+        Z2[n, :] = interp1d(
+            x_ref[mask], y_ref[mask], fill_value="extrapolate"
+        )(x)
+
+    return gaussian_filter(0.5 * (Z1 + Z2), (0.5, 0.5))
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -19,67 +44,49 @@ if __name__ == "__main__":
     # Load the data file
     with fits.open(args.input) as f:
         hdr = f[0].header
-        mu = f[1].data
+        intercept = f[1].data
+        slope = f[2].data
         count = f[3].data
+        eff_mag = f[4].data
+        eff_color = f[5].data
+        # eff_log_plx = f[6].data
+        mag_bins = f[7].data
+        color_bins = f[8].data
 
-    # Compute the bin coordinates from the header specification
-    color_bins = np.linspace(
-        hdr["MIN_COL"], hdr["MAX_COL"], hdr["NUM_COL"] + 1
-    )
-    mag_bins = np.linspace(hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1)
-    color_bin_centers = 0.5 * (color_bins[1:] + color_bins[:-1])
+    # Mask bins with a small number of targets
+    mask = count > 100
+    intercept[~mask] = np.nan
+    slope[~mask] = np.nan
+
+    # Compute the evenly spaced bin centers
     mag_bin_centers = 0.5 * (mag_bins[1:] + mag_bins[:-1])
+    color_bin_centers = 0.5 * (color_bins[1:] + color_bins[:-1])
 
     # Interpolate horizontally and vertically
-    mu_base = np.mean(mu, axis=-1)
-    mn, mx = (
-        mu_base[np.isfinite(mu_base)].min(),
-        mu_base[np.isfinite(mu_base)].max(),
+    intercept_full = interpolate(
+        eff_mag, eff_color, intercept, mag_bin_centers, color_bin_centers
+    )
+    slope_full = interpolate(
+        eff_mag, eff_color, slope, mag_bin_centers, color_bin_centers
     )
 
-    mu_mean_x = np.copy(mu_base)
-    for k in range(mu_mean_x.shape[0]):
-        y = mu_mean_x[k]
-        m = np.isfinite(y)
-        mu_mean_x[k] = interp1d(
-            color_bin_centers[m],
-            y[m],
-            kind="nearest",
-            fill_value="extrapolate",
-        )(color_bin_centers)
-
-    mu_mean_y = np.copy(mu_base)
-    for k in range(mu_mean_y.shape[1]):
-        y = mu_mean_y[:, k]
-        m = np.isfinite(y)
-        mu_mean_y[:, k] = interp1d(
-            mag_bin_centers[m],
-            y[m],
-            kind="nearest",
-            fill_value="extrapolate",
-        )(mag_bin_centers)
-
-    # Take the mean of the interpolations; this shouldn't change the values
-    # in bounds, but should somewhat smooth the out of bounds regions
-    mu_full = 0.5 * (mu_mean_x + mu_mean_y)
-
-    # Finally, smooth the model using a Gaussian filter
-    dc = args.color_smooth / (color_bins[1] - color_bins[0])
-    dm = args.mag_smooth / (mag_bins[1] - mag_bins[0])
-    mu_smooth = gaussian_filter(mu_full, (dm, dc))
-
-    # Update this so that only the out of bounds parts are smoothed
-    valid = np.isfinite(mu_base)
-    mu_smooth[valid] = mu_base[valid]
+    # Estimate the scatter in this model
+    intercept_scatter = np.sqrt(
+        np.nanmedian((intercept - intercept_full) ** 2)
+    )
+    slope_scatter = np.sqrt(np.nanmedian((slope - slope_full) ** 2))
 
     # Save the results
-    hdr["col_smth"] = args.color_smooth
-    hdr["mag_smth"] = args.mag_smooth
+    hdr["int_scat"] = intercept_scatter
+    hdr["slp_scat"] = slope_scatter
     fits.HDUList(
         [
             fits.PrimaryHDU(header=hdr),
-            fits.ImageHDU(mu_smooth),
-            fits.ImageHDU(valid.astype(np.int32)),
+            fits.ImageHDU(mag_bins, name="mag bins"),
+            fits.ImageHDU(color_bins, name="color bins"),
+            fits.ImageHDU(intercept_full),
+            fits.ImageHDU(slope_full),
+            fits.ImageHDU(mask.astype(np.int32)),
             fits.ImageHDU(count),
         ]
     ).writeto(args.output, overwrite=True)

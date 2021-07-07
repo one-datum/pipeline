@@ -90,19 +90,6 @@ def load_data(
     return data[m]
 
 
-@partial(jax.jit, static_argnums=(0, 1))
-def train(svi, num_optim, key, num_transit, log_plx, stat):
-    params, _ = svi.run(
-        key,
-        num_optim,
-        num_transit,
-        log_plx,
-        stat,
-        progress_bar=False,
-    )
-    return params["b"], params["m"]
-
-
 def fit_data(
     data: fits.fitsrec.FITS_rec,
     *,
@@ -110,7 +97,15 @@ def fit_data(
     num_color_bins: int,
     num_optim: int = 1000,
     seed: int = 11239,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+) -> Tuple[
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    Tuple[np.ndarray, np.ndarray],
+]:
     # Parse data
     num_transit = np.ascontiguousarray(
         data["dr2_rv_nb_transits"], dtype=np.int32
@@ -124,9 +119,6 @@ def fit_data(
     mag = np.ascontiguousarray(data["phot_g_mean_mag"], dtype=np.float32)
     color = np.ascontiguousarray(data["bp_rp"], dtype=np.float32)
 
-    # Setup the JAX model
-    svi = setup_model()
-
     # Setup the grid and allocate the memory
     color_bins = np.percentile(
         data["bp_rp"], np.linspace(0, 100, num_color_bins + 1)
@@ -134,34 +126,58 @@ def fit_data(
     mag_bins = np.percentile(
         data["phot_g_mean_mag"], np.linspace(0, 100, num_mag_bins + 1)
     )
+
     intercept = np.full((len(mag_bins) - 1, len(color_bins) - 1), np.nan)
     slope = np.full((len(mag_bins) - 1, len(color_bins) - 1), np.nan)
+    eff_mag = np.full((len(mag_bins) - 1, len(color_bins) - 1), np.nan)
+    eff_color = np.full((len(mag_bins) - 1, len(color_bins) - 1), np.nan)
+    eff_log_plx = np.full((len(mag_bins) - 1, len(color_bins) - 1), np.nan)
     count = np.zeros((len(mag_bins) - 1, len(color_bins) - 1), dtype=np.int64)
 
     for n in tqdm(range(len(mag_bins) - 1), desc="magnitudes"):
+        # Setup the JAX model
+        svi = setup_model()
+        train = jax.jit(partial(svi.run, progress_bar=False), static_argnums=1)
+
         for m in tqdm(range(len(color_bins) - 1), desc="colors", leave=False):
             mask = mag_bins[n] <= mag
             mask &= mag <= mag_bins[n + 1]
             mask &= color_bins[m] <= color
             mask &= color <= color_bins[m + 1]
 
+            # Skip if there aren't enough targets in the bin
             count[n, m] = mask.sum()
             if count[n, m] <= 1:
                 continue
 
-            intercept[n, m], slope[n, m] = train(
-                svi,
-                num_optim,
+            # Save the effective coordaintes of the bin
+            eff_mag[n, m] = np.median(data["phot_g_mean_mag"][mask])
+            eff_color[n, m] = np.median(data["bp_rp"][mask])
+            eff_log_plx[n, m] = np.median(log_plx[mask])
+
+            # Fit the model
+            params, _ = train(
                 random.PRNGKey(seed + n + m),
+                num_optim,
                 num_transit[mask],
                 log_plx[mask],
                 stat[mask],
             )
+            intercept[n, m] = float(params["b"])
+            slope[n, m] = float(params["m"])
 
-        # Try not to have JAX memory footprint grow forever
+        # Try not to have JAX memory footprint grow forever; prolly will anyway
         xla._xla_callable.cache_clear()
 
-    return intercept, slope, count, (mag_bins, color_bins)
+    return (
+        intercept,
+        slope,
+        count,
+        eff_mag,
+        eff_color,
+        eff_log_plx,
+        (mag_bins, color_bins),
+    )
 
 
 if __name__ == "__main__":
@@ -182,7 +198,7 @@ if __name__ == "__main__":
         data_path=args.input, min_nb_transits=config["min_nb_transits"]
     )
 
-    intercept, slope, count, bins = fit_data(
+    intercept, slope, count, mag, color, plx, bins = fit_data(
         data,
         num_mag_bins=config["num_mag"],
         num_color_bins=config["num_color"],
@@ -200,9 +216,12 @@ if __name__ == "__main__":
     fits.HDUList(
         [
             fits.PrimaryHDU(header=hdr),
-            fits.ImageHDU(intercept),
-            fits.ImageHDU(slope),
-            fits.ImageHDU(count),
+            fits.ImageHDU(intercept, name="intercept"),
+            fits.ImageHDU(slope, name="slope"),
+            fits.ImageHDU(count, name="count"),
+            fits.ImageHDU(mag, name="mag"),
+            fits.ImageHDU(color, name="color"),
+            fits.ImageHDU(plx, name="log plx"),
             fits.ImageHDU(bins[0], name="mag bins"),
             fits.ImageHDU(bins[1], name="color bins"),
         ]

@@ -5,8 +5,8 @@ seed: 11239
 min_nb_transits: 3
 
 # The color and magnitude grid specification
-num_color: 20
-num_mag: 30
+num_color: 35
+num_mag: 60
 
 # The number of SVI optimization steps to run
 num_optim: 1000
