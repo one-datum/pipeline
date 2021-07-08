@@ -9,11 +9,11 @@ import numpyro
 import numpyro.distributions as dist
 from astropy.io import fits
 from jax import random
-from jax.config import config
+from jax.config import config as jax_config
 from numpyro.infer import SVI, Trace_ELBO
 from tqdm import tqdm
 
-config.update("jax_enable_x64", True)
+jax_config.update("jax_enable_x64", True)
 
 
 MIN_COLOR: float = 0.0

@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     data = append_fields(
         data,
-        ["rv_est_uncert", "rv_unc_conf", "rv_pval"],
+        ["rv_est_uncert", "rv_unc_conf", "rv_pval_raw"],
         [np.exp(ln_sigma), confidence, pval],
     )
     fitsio.write(args.output, data, clobber=True)

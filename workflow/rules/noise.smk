@@ -4,7 +4,7 @@ rule noise_infer:
     output:
         get_results_filename("{dataset}/noise/raw.fits")
     params:
-        config=config["noise_config_file"],
+        config=config["noise_config_file"]
     conda:
         "../envs/environment.yml"
     log:
@@ -55,5 +55,47 @@ rule noise_apply:
             --noise-model {input.noise_model} \\
             --input {input.base_table} \\
             --output {output} \\
+            &> {log}
+        """
+
+rule noise_calibrate:
+    input:
+        get_results_filename("{dataset}/noise/applied.fits.gz")
+    output:
+        get_results_filename("{dataset}/noise/calibrate.txt")
+    params:
+        config=config["noise_config_file"]
+    conda:
+        "../envs/environment.yml"
+    log:
+        get_log_filename("{dataset}/noise/calibrate.log")
+    shell:
+        """
+        python workflow/scripts/noise/calibrate.py \\
+            --input {input} \\
+            --output {output} \\
+            --config {params.config} \\
+            &> {log}
+        """
+
+rule noise_pval:
+    input:
+        catalog=get_results_filename("{dataset}/noise/applied.fits.gz"),
+        calib=get_results_filename("{dataset}/noise/calibrate.txt")
+    output:
+        get_results_filename("{dataset}/noise/pval.fits.gz")
+    params:
+        config=config["noise_config_file"]
+    conda:
+        "../envs/environment.yml"
+    log:
+        get_log_filename("{dataset}/noise/pval.log")
+    shell:
+        """
+        python workflow/scripts/noise/pval.py \\
+            --catalog {input.catalog} \\
+            --calib {input.calib} \\
+            --output {output} \\
+            --config {params.config} \\
             &> {log}
         """

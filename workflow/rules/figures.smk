@@ -78,7 +78,7 @@ rule figures_noise_model:
 
 rule figures_sigma_cmd:
     input:
-        get_results_filename("{dataset}/noise/applied.fits.gz")
+        get_results_filename("{dataset}/noise/pval.fits.gz")
     output:
         report(
             get_results_filename("{dataset}/figures/sigma_cmd.pdf"),
@@ -98,7 +98,7 @@ rule figures_sigma_cmd:
 
 rule figures_binary_fraction_cmd:
     input:
-        get_results_filename("{dataset}/noise/applied.fits.gz")
+        get_results_filename("{dataset}/noise/pval.fits.gz")
     output:
         report(
             get_results_filename("{dataset}/figures/binary_fraction_cmd.pdf"),
@@ -121,7 +121,7 @@ rule figures_binary_fraction_cmd:
 
 rule figures_p_value_dist:
     input:
-        get_results_filename("{dataset}/noise/applied.fits.gz")
+        get_results_filename("{dataset}/noise/pval.fits.gz")
     output:
         report(
             get_results_filename("{dataset}/figures/p_value_dist.pdf"),

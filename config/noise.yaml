@@ -21,3 +21,9 @@ num_optim: 5000
 
 # The number of random subsets to execute per inference
 num_iter: 5
+
+# The number of calibration iterations to run
+num_calib: 100
+
+# Batch size for p-value calculation
+num_pval: 1000

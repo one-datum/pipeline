@@ -21,15 +21,31 @@ sigma = data["rv_est_uncert"]
 nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)
 m = np.isfinite(sigma) & (nb_transits >= 3) & (conf > 0.75)
 pval = data["rv_pval"][m]
+pval_raw = data["rv_pval_raw"][m]
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6))
+ax1.hist(
+    pval_raw,
+    100,
+    color="k",
+    linestyle="dotted",
+    histtype="step",
+    weights=1e-5 + np.zeros(len(pval)),
+    label="uncalibrated",
+)
 _, bins, _ = ax1.hist(
-    pval, 100, color="k", histtype="step", weights=1e-5 + np.zeros(len(pval))
+    pval,
+    100,
+    color="k",
+    histtype="step",
+    weights=1e-5 + np.zeros(len(pval)),
+    label="calibrated",
 )
 expect = 1e-5 * len(pval) / (len(bins) - 1)
 ax1.plot([0, 0, 1, 1], [0, expect, expect, 0], ":C1")
 ax1.set_xlabel("p-value")
 ax1.set_ylabel(r"number of targets [$\times 10^{5}$]")
+ax1.legend()
 
 ax2.hist(
     pval,
