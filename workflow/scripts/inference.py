@@ -18,7 +18,7 @@ QUANTILES = np.array([0.05, 0.16, 0.5, 0.84, 0.95])
 
 def precompute_model(
     max_nb_transits: int, *, num_samp: int = 50000, seed: int = 384820
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     random = np.random.default_rng(seed)
 
     # Simulate transit times by sampling from the baseline
@@ -48,22 +48,23 @@ def precompute_model(
         m = rv_mod[: n + 1]
         lam[n] = np.sum((m - np.mean(m, axis=0)[None, :]) ** 2, axis=0)
 
-    return log_semiamp.astype(np.float32), lam
+    return log_semiamp.astype(np.float32), lam, random.normal(size=num_samp)
 
 
 def _inner_process(
     rate_param: np.ndarray,
+    eps: np.ndarray,
     ln_sigma: np.ndarray,
     nb_transits: np.ndarray,
     statistic: np.ndarray,
 ):
     # The Keplerian model
-    ivar = np.exp(-2 * ln_sigma)
-    target_lam = rate_param[nb_transits - 1] * ivar[:, None]
+    ivar = np.exp(-2 * (ln_sigma[:, None] + eps[None, :]))
+    target_lam = rate_param[nb_transits - 1] * ivar
     ncx2 = scipy.stats.ncx2(df=nb_transits[:, None], nc=target_lam)
 
-    s2 = np.multiply(statistic, ivar, out=ivar)
-    log_weight = ncx2.logpdf(s2[:, None])
+    s2 = statistic[:, None] * ivar
+    log_weight = ncx2.logpdf(s2)
     weights = np.exp(
         log_weight - log_weight.max(axis=1)[:, None], out=target_lam
     )
@@ -78,23 +79,20 @@ def _inner_process(
     )
 
 
-def process(
-    rate_param: np.ndarray,
-    args: Tuple[np.ndarray, np.ndarray, np.ndarray],
-) -> np.ndarray:
-    ln_sigma, nb_transits, statistic = args
-    return _inner_process(rate_param, *args)
-
-
 def process_shared(
-    name: str,
-    shape: Tuple[int],
-    dtype: np.dtype,
+    name1: str,
+    shape1: Tuple[int],
+    dtype1: np.dtype,
+    name2: str,
+    shape2: Tuple[int],
+    dtype2: np.dtype,
     args: Tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
-    rate_buf = SharedMemory(name)
-    rate_param = np.ndarray(shape=shape, dtype=dtype, buffer=rate_buf.buf)
-    return _inner_process(rate_param, *args)
+    rate_buf = SharedMemory(name1)
+    rate_param = np.ndarray(shape=shape1, dtype=dtype1, buffer=rate_buf.buf)
+    eps_buf = SharedMemory(name2)
+    eps = np.ndarray(shape=shape2, dtype=dtype2, buffer=eps_buf.buf)
+    return _inner_process(rate_param, eps, *args)
 
 
 if __name__ == "__main__":
@@ -103,15 +101,19 @@ if __name__ == "__main__":
     import tracemalloc
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", required=True, type=str)
-    parser.add_argument("-o", "--output", required=True, type=str)
-    parser.add_argument("-s", "--block-size", default=10, type=int)
+    parser.add_argument("--catalog", required=True, type=str)
+    parser.add_argument("--calib", required=True, type=str)
+    parser.add_argument("--output", required=True, type=str)
+    parser.add_argument("--block-size", default=10, type=int)
     args = parser.parse_args()
 
     block_size = int(args.block_size)
 
     print("Loading data...")
-    data = fitsio.read(args.input)
+    data = fitsio.read(args.catalog)
+
+    with open(args.calib, "r") as f:
+        noise_err = np.mean(list(map(float, f.readlines())))
 
     # Compute the ingredients for probabilistic model
     ln_sigma = np.log(data["rv_est_uncert"])
@@ -134,7 +136,8 @@ if __name__ == "__main__":
 
     # Simulate the RV error model
     print("Simulating model...")
-    ln_semiamp, rate_param = precompute_model(max_nb_transits)
+    ln_semiamp, rate_param, eps = precompute_model(max_nb_transits)
+    eps *= noise_err
 
     print("Processing shared...")
     tracemalloc.start()
@@ -148,11 +151,22 @@ if __name__ == "__main__":
         )
         rate_array[:] = rate_param
 
+        shared_eps = smm.SharedMemory(eps.nbytes)  # type: ignore
+        eps_array = np.ndarray(
+            shape=eps.shape,
+            dtype=eps.dtype,
+            buffer=shared_eps.buf,
+        )
+        eps_array[:] = eps
+
         func = partial(
             process_shared,
             shared_rate_param.name,
             rate_param.shape,
             rate_param.dtype,
+            shared_eps.name,
+            eps.shape,
+            eps.dtype,
         )
         with Pool() as pool:
             results = list(

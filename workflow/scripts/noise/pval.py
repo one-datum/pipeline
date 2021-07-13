@@ -46,7 +46,6 @@ if __name__ == "__main__":
 
     with open(args.calib, "r") as f:
         noise_err = np.mean(list(map(float, f.readlines())))
-    print(noise_err)
 
     # Extract the relevant columns
     nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)

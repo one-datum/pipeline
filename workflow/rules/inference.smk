@@ -1,6 +1,7 @@
 rule inference:
     input:
-        get_results_filename("{dataset}/noise/applied.fits.gz")
+        catalog=get_results_filename("{dataset}/noise/pval.fits.gz"),
+        calib=get_results_filename("{dataset}/noise/calibrate.txt")
     output:
         get_results_filename("{dataset}/inference/inferred.fits.gz")
     conda:
@@ -8,4 +9,10 @@ rule inference:
     log:
         get_log_filename("{dataset}/inference.log")
     shell:
-        "python workflow/scripts/inference.py --input {input} --output {output} &> {log}"
+        """
+        python workflow/scripts/inference.py \\
+            --catalog {input.catalog} \\
+            --calib {input.calib} \\
+            --output {output} \\
+            &> {log}
+        """
