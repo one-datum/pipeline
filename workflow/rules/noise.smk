@@ -23,9 +23,6 @@ rule noise_postprocess:
         get_results_filename("{dataset}/noise/raw.fits")
     output:
         get_results_filename("{dataset}/noise/processed.fits")
-    params:
-        color_smooth=config["noise"]["color_smoothing_scale"],
-        mag_smooth=config["noise"]["mag_smoothing_scale"]
     conda:
         "../envs/environment.yml"
     log:
@@ -34,8 +31,6 @@ rule noise_postprocess:
         """
         python workflow/scripts/noise/postprocess.py \\
             --input {input} --output {output} \\
-            --color-smooth {params.color_smooth} \\
-            --mag-smooth {params.mag_smooth} \\
             &> {log}
         """
 

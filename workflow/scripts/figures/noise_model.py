@@ -11,7 +11,7 @@ from astropy.io import fits
 from scipy.ndimage import gaussian_filter
 
 
-def make_figure(model, levels, output, norm=None):
+def make_figure(mask, model, levels, output, norm=None):
     plt.figure(figsize=(7, 6))
     mappable = plt.contourf(
         color_bin_centers,
@@ -60,33 +60,33 @@ args = parser.parse_args()
 with fits.open(args.input) as f:
     mag_bins = f[1].data
     color_bins = f[2].data
-    intercept = f[3].data
-    slope = f[4].data
-    mask = f[5].data
+    log_df = f[3].data
+    loc = f[4].data
+    log_scale = f[5].data
+    count = f[6].data
 
-intercept = gaussian_filter(intercept, (1, 1))
-slope = gaussian_filter(slope, (1, 1))
+mask = count > 1
 
 color_bin_centers = 0.5 * (color_bins[1:] + color_bins[:-1])
 mag_bin_centers = 0.5 * (mag_bins[1:] + mag_bins[:-1])
 
-sigma_rv = np.exp(intercept)
-levels = np.exp(
-    np.linspace(intercept[mask == 1].min(), intercept[mask == 1].max(), 25)
-)
-sigma_rv[sigma_rv >= levels[-1]] = levels[-1] - 1e-5
+sigma_rv = np.exp(loc)
+levels = np.exp(np.linspace(np.nanmin(loc[mask]), np.nanmax(loc[mask]), 25))
+sigma_rv = np.clip(sigma_rv, levels[0] + 1e-5, levels[-1] - 1e-5)
+# sigma_rv[sigma_rv >= levels[-1]] = levels[-1] - 1e-5
 
 make_figure(
+    mask,
     sigma_rv,
     levels,
     args.output,
     norm=mpl.colors.LogNorm(vmin=levels[0], vmax=levels[-1]),
 )
 
-name, ext = os.path.splitext(args.output)
-make_figure(
-    slope,
-    np.linspace(slope[mask == 1].min(), slope[mask == 1].max(), 25),
-    f"{name}_slope{ext}"
-    # norm=mpl.colors.LogNorm(vmin=levels[0], vmax=levels[-1]),
-)
+# name, ext = os.path.splitext(args.output)
+# make_figure(
+#     slope,
+#     np.linspace(slope[mask == 1].min(), slope[mask == 1].max(), 25),
+#     f"{name}_slope{ext}"
+#     # norm=mpl.colors.LogNorm(vmin=levels[0], vmax=levels[-1]),
+# )

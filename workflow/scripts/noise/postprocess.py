@@ -3,8 +3,7 @@
 
 import numpy as np
 from astropy.io import fits
-from scipy.interpolate import interp1d
-from scipy.ndimage import gaussian_filter
+from scipy.interpolate import UnivariateSpline, interp1d
 
 
 def interpolate(X, Y, Z, x0, y0):
@@ -13,22 +12,91 @@ def interpolate(X, Y, Z, x0, y0):
     for n in range(len(y0)):
         x_ref = X[:, n]
         y_ref = Z[:, n]
-        mask = np.isfinite(x_ref) & np.isfinite(y_ref)
+        mask = np.isfinite(y_ref) & np.isfinite(y_ref)
+
+        inds = np.arange(len(y_ref))
+        resid = np.abs(np.diff(y_ref[mask]) / np.diff(x_ref[mask]))
+        sigma = np.sqrt(np.nanmedian(resid ** 2))
+        y_ref[inds[mask][:-1][resid > 3 * sigma]] = np.nan
+
+        mask = np.isfinite(y_ref) & np.isfinite(y_ref)
         Z1[:, n] = interp1d(
             x_ref[mask], y_ref[mask], fill_value="extrapolate"
         )(x)
 
     x = y0
     Z2 = np.zeros_like(Z)
-    for n in range(len(mag_bin_centers)):
+    for n in range(len(x0)):
         x_ref = Y[n, :]
         y_ref = Z[n, :]
         mask = np.isfinite(x_ref) & np.isfinite(y_ref)
+
+        inds = np.arange(len(y_ref))
+        resid = np.abs(np.diff(y_ref[mask]) / np.diff(x_ref[mask]))
+        sigma = np.sqrt(np.nanmedian(resid ** 2))
+        y_ref[inds[mask][:-1][resid > 3 * sigma]] = np.nan
+
+        mask = np.isfinite(y_ref) & np.isfinite(y_ref)
         Z2[n, :] = interp1d(
             x_ref[mask], y_ref[mask], fill_value="extrapolate"
         )(x)
 
-    return gaussian_filter(0.5 * (Z1 + Z2), (0.5, 0.5))
+    model = 0.5 * (Z1 + Z2)
+
+    # Handle edge effects
+    model[:, 0] = UnivariateSpline(x0, model[:, 0])(x0)
+    model[:, -1] = UnivariateSpline(x0, model[:, -1])(x0)
+    model[0] = UnivariateSpline(y0, model[0])(y0)
+    model[-1] = UnivariateSpline(y0, model[-1])(y0)
+
+    return model
+
+
+def postprocess(input, output):
+    # Load the data file
+    with fits.open(input) as f:
+        hdr = f[0].header
+        log_df = f[1].data
+        loc = f[2].data
+        log_scale = f[3].data
+        count = f[4].data
+        eff_mag = f[5].data
+        eff_color = f[6].data
+        mag_bins = f[7].data
+        color_bins = f[8].data
+
+    # Mask bins with few points
+    log_df[count < 100] = np.nan
+    loc[count < 100] = np.nan
+    log_scale[count < 100] = np.nan
+
+    # Compute the evenly spaced bin centers
+    mag_bin_centers = 0.5 * (mag_bins[1:] + mag_bins[:-1])
+    color_bin_centers = 0.5 * (color_bins[1:] + color_bins[:-1])
+
+    # Interpolate horizontally and vertically
+    log_df = interpolate(
+        eff_mag, eff_color, log_df, mag_bin_centers, color_bin_centers
+    )
+    loc = interpolate(
+        eff_mag, eff_color, loc, mag_bin_centers, color_bin_centers
+    )
+    log_scale = interpolate(
+        eff_mag, eff_color, log_scale, mag_bin_centers, color_bin_centers
+    )
+
+    # Save the results
+    fits.HDUList(
+        [
+            fits.PrimaryHDU(header=hdr),
+            fits.ImageHDU(mag_bins, name="mag bins"),
+            fits.ImageHDU(color_bins, name="color bins"),
+            fits.ImageHDU(log_df),
+            fits.ImageHDU(loc),
+            fits.ImageHDU(log_scale),
+            fits.ImageHDU(count),
+        ]
+    ).writeto(output, overwrite=True)
 
 
 if __name__ == "__main__":
@@ -37,56 +105,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", required=True, type=str)
     parser.add_argument("-o", "--output", required=True, type=str)
-    parser.add_argument("--color-smooth", required=True, type=float)
-    parser.add_argument("--mag-smooth", required=True, type=float)
     args = parser.parse_args()
 
-    # Load the data file
-    with fits.open(args.input) as f:
-        hdr = f[0].header
-        intercept = f[1].data
-        slope = f[2].data
-        count = f[3].data
-        eff_mag = f[4].data
-        eff_color = f[5].data
-        # eff_log_plx = f[6].data
-        mag_bins = f[7].data
-        color_bins = f[8].data
-
-    # Mask bins with a small number of targets
-    mask = count > 100
-    intercept[~mask] = np.nan
-    slope[~mask] = np.nan
-
-    # Compute the evenly spaced bin centers
-    mag_bin_centers = 0.5 * (mag_bins[1:] + mag_bins[:-1])
-    color_bin_centers = 0.5 * (color_bins[1:] + color_bins[:-1])
-
-    # Interpolate horizontally and vertically
-    intercept_full = interpolate(
-        eff_mag, eff_color, intercept, mag_bin_centers, color_bin_centers
-    )
-    slope_full = interpolate(
-        eff_mag, eff_color, slope, mag_bin_centers, color_bin_centers
-    )
-
-    # Estimate the scatter in this model
-    intercept_scatter = np.sqrt(
-        np.nanmedian((intercept - intercept_full) ** 2)
-    )
-    slope_scatter = np.sqrt(np.nanmedian((slope - slope_full) ** 2))
-
-    # Save the results
-    hdr["int_scat"] = intercept_scatter
-    hdr["slp_scat"] = slope_scatter
-    fits.HDUList(
-        [
-            fits.PrimaryHDU(header=hdr),
-            fits.ImageHDU(mag_bins, name="mag bins"),
-            fits.ImageHDU(color_bins, name="color bins"),
-            fits.ImageHDU(intercept_full),
-            fits.ImageHDU(slope_full),
-            fits.ImageHDU(mask.astype(np.int32)),
-            fits.ImageHDU(count),
-        ]
-    ).writeto(args.output, overwrite=True)
+    postprocess(args.input, args.output)
