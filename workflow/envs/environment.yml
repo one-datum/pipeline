@@ -21,5 +21,6 @@ dependencies:
   - pip =21.0
   - pip:
       - kepler.py==0.0.6
+      - jax<0.2.21
       - numpyro==0.8.0
       - tensorflow-probability==0.14.1
