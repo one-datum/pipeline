@@ -202,7 +202,7 @@ def fit_data(
                     random.PRNGKey(seed + n + m),
                     num_optim,
                     num_transit[mask],
-                    stat=(num_transit[mask] - 1) * sample_variance[mask],
+                    statistic=(num_transit[mask] - 1) * sample_variance[mask],
                     progress_bar=False,
                 )
                 params = svi_result.params
@@ -222,7 +222,7 @@ def fit_data(
                     random.PRNGKey(seed + n + m + k),
                     num_optim,
                     num_transit[masked_inds],
-                    stat=(num_transit[masked_inds] - 1)
+                    statistic=(num_transit[masked_inds] - 1)
                     * sample_variance[masked_inds],
                     progress_bar=False,
                 )
