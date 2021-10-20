@@ -4,16 +4,14 @@
 from typing import Tuple
 
 import jax.numpy as jnp
-import jax.random as random
 import jax.scipy as jsp
 import numpy as np
 import numpyro
 import numpyro.distributions as dist
-
 import tensorflow_probability.substrates.jax as tfp
 from astropy.io import fits
 from jax import lax, random
-from jax.config import config
+from jax.config import config as jax_config
 from numpyro.distributions import constraints
 from numpyro.distributions.distribution import Distribution
 from numpyro.distributions.transforms import AffineTransform
@@ -22,10 +20,10 @@ from numpyro.distributions.util import (
     promote_shapes,
     validate_sample,
 )
-from numpyro.infer import SVI, Trace_ELBO
+from numpyro.infer import SVI
 from tqdm import tqdm
 
-config.update("jax_enable_x64", True)
+jax_config.update("jax_enable_x64", True)
 
 
 MIN_COLOR: float = 0.0
@@ -54,7 +52,9 @@ class NoncentralChi2(Distribution):
         )
 
     def sample(self, key, sample_shape=()):
-        # Ref: https://github.com/numpy/numpy/blob/89c80ba606f4346f8df2a31cfcc0e967045a68ed/numpy/random/src/distributions/distributions.c#L797-L813
+        # Ref: https://github.com/numpy/numpy/blob/
+        #      89c80ba606f4346f8df2a31cfcc0e967045a68ed/numpy/random/src/
+        #      distributions/distributions.c#L797-L813
         assert is_prng_key(key)
         shape = sample_shape + self.batch_shape + self.event_shape
 
@@ -72,7 +72,9 @@ class NoncentralChi2(Distribution):
 
     @validate_sample
     def log_prob(self, value):
-        # Ref: https://github.com/scipy/scipy/blob/500878e88eacddc7edba93dda7d9ee5f784e50e6/scipy/stats/_distn_infrastructure.py#L597-L610
+        # Ref: https://github.com/scipy/scipy/blob/
+        #      500878e88eacddc7edba93dda7d9ee5f784e50e6/scipy/stats/
+        #      _distn_infrastructure.py#L597-L610
         df2 = self.df / 2.0 - 1.0
         xs, ns = jnp.sqrt(value), jnp.sqrt(self.nc)
         res = (
@@ -239,6 +241,7 @@ if __name__ == "__main__":
     import yaml
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("-b", "--mag-bin", required=True, type=int)
     parser.add_argument("-i", "--input", required=True, type=str)
     parser.add_argument("-o", "--output", required=True, type=str)
     parser.add_argument("-c", "--config", required=True, type=str)
@@ -247,6 +250,12 @@ if __name__ == "__main__":
     with open(args.config, "r") as f:
         config = yaml.load(f.read(), Loader=yaml.FullLoader)
 
+    mag_bins = np.linspace(
+        config["min_mag"], config["max_mag"], config["num_mag"] + 1
+    )
+    min_mag = mag_bins[args.mag_bin]
+    max_mag = mag_bins[args.mag_bin + 1]
+
     data = load_data(
         data_path=args.input,
         min_nb_transits=config["min_nb_transits"],
@@ -254,24 +263,18 @@ if __name__ == "__main__":
             config["min_color"],
             config["max_color"],
         ),
-        mag_range=(
-            config["min_mag"],
-            config["max_mag"],
-        ),
+        mag_range=(min_mag, max_mag),
     )
 
     mu, sigma, count = fit_data(
         data,
-        num_mag_bins=config["num_mag"],
+        num_mag_bins=1,
         num_color_bins=config["num_color"],
         color_range=(
             config["min_color"],
             config["max_color"],
         ),
-        mag_range=(
-            config["min_mag"],
-            config["max_mag"],
-        ),
+        mag_range=(min_mag, max_mag),
         num_iter=config["num_iter"],
         targets_per_fit=config["targets_per_fit"],
         num_optim=config["num_optim"],

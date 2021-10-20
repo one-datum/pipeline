@@ -1,6 +1,6 @@
 rule inference:
     input:
-        get_results_filename("{dataset}/noise/applied.fits.gz")
+        get_results_filename("{dataset}/noise/apply.fits.gz")
     output:
         get_results_filename("{dataset}/inference/inferred.fits.gz")
     conda:
