@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+
+
+def sorter(fn):
+    return int(os.path.splitext(os.path.split(fn)[-1])[0].split("-")[-1])
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -20,7 +27,7 @@ if __name__ == "__main__":
     mu = []
     sigma = []
     count = []
-    for inp in sorted(args.input):
+    for inp in sorted(args.input, key=sorter):
         with fits.open(inp) as hdu:
             mu.append(hdu[1].data)
             sigma.append(hdu[2].data)
