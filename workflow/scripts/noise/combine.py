@@ -11,7 +11,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output", required=True, type=str)
     parser.add_argument("-c", "--config", required=True, type=str)
-    parser.add_argument("input", nargs="+", required=True)
+    parser.add_argument("input", nargs="+")
     args = parser.parse_args()
 
     with open(args.config, "r") as f:
