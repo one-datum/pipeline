@@ -4,12 +4,24 @@
 from typing import Tuple
 
 import jax.numpy as jnp
+import jax.random as random
+import jax.scipy as jsp
 import numpy as np
 import numpyro
 import numpyro.distributions as dist
+
+import tensorflow_probability.substrates.jax as tfp
 from astropy.io import fits
-from jax import random
+from jax import lax, random
 from jax.config import config
+from numpyro.distributions import constraints
+from numpyro.distributions.distribution import Distribution
+from numpyro.distributions.transforms import AffineTransform
+from numpyro.distributions.util import (
+    is_prng_key,
+    promote_shapes,
+    validate_sample,
+)
 from numpyro.infer import SVI, Trace_ELBO
 from tqdm import tqdm
 
@@ -22,46 +34,92 @@ MIN_MAG: float = 4.5
 MAX_MAG: float = 16.0
 
 
-def setup_model() -> SVI:
-    def model(num_transit, sample_variance):
-        log_sigma0 = numpyro.sample("log_sigma0", dist.Normal(0.0, 10.0))
-        log_dsigma = numpyro.sample(
-            "log_dsigma",
-            dist.Normal(0.0, 10.0),
-            sample_shape=(len(sample_variance),),
-        )
-        sigma2 = jnp.exp(2 * log_sigma0) + jnp.exp(2 * log_dsigma)
-        stat = sample_variance * (num_transit - 1)
-        numpyro.sample(
-            "obs", dist.Gamma(0.5 * (num_transit - 1), 0.5 / sigma2), obs=stat
+def _random_chi2(key, df, shape=(), dtype=jnp.float_):
+    return 2.0 * random.gamma(key, 0.5 * df, shape=shape, dtype=dtype)
+
+
+class NoncentralChi2(Distribution):
+    arg_constraints = {
+        "df": constraints.positive,
+        "nc": constraints.positive,
+    }
+    support = constraints.positive
+    reparametrized_params = ["df", "nc"]
+
+    def __init__(self, df, nc, validate_args=None):
+        self.df, self.nc = promote_shapes(df, nc)
+        batch_shape = lax.broadcast_shapes(jnp.shape(df), jnp.shape(nc))
+        super(NoncentralChi2, self).__init__(
+            batch_shape=batch_shape, validate_args=validate_args
         )
 
-    def guide(num_transit, sample_variance):
-        mu_log_sigma0 = numpyro.param(
-            "mu_log_sigma0", 0.5 * np.log(np.median(sample_variance))
+    def sample(self, key, sample_shape=()):
+        # Ref: https://github.com/numpy/numpy/blob/89c80ba606f4346f8df2a31cfcc0e967045a68ed/numpy/random/src/distributions/distributions.c#L797-L813
+        assert is_prng_key(key)
+        shape = sample_shape + self.batch_shape + self.event_shape
+
+        key1, key2, key3 = random.split(key, 3)
+
+        i = random.poisson(key1, 0.5 * self.nc, shape=shape)
+        n = random.normal(key2, shape=shape) + jnp.sqrt(self.nc)
+        cond = jnp.greater(self.df, 1.0)
+        chi2 = _random_chi2(
+            key3,
+            jnp.where(cond, self.df - 1.0, self.df + 2.0 * i),
+            shape=shape,
         )
-        sigma_log_sigma0 = numpyro.param(
-            "sigma_log_sigma0", 1.0, constraint=dist.constraints.positive
+        return jnp.where(cond, chi2 + n * n, chi2)
+
+    @validate_sample
+    def log_prob(self, value):
+        # Ref: https://github.com/scipy/scipy/blob/500878e88eacddc7edba93dda7d9ee5f784e50e6/scipy/stats/_distn_infrastructure.py#L597-L610
+        df2 = self.df / 2.0 - 1.0
+        xs, ns = jnp.sqrt(value), jnp.sqrt(self.nc)
+        res = (
+            jsp.special.xlogy(df2 / 2.0, value / self.nc)
+            - 0.5 * (xs - ns) ** 2
+        )
+        corr = tfp.math.bessel_ive(df2, xs * ns) / 2.0
+        return jnp.where(
+            jnp.greater(corr, 0.0),
+            res + jnp.log(corr),
+            -jnp.inf,
         )
 
-        mu_log_dsigma = numpyro.param(
-            "mu_log_dsigma", 0.5 * np.log(sample_variance)
-        )
-        sigma_log_dsigma = numpyro.param(
-            "sigma_log_dsigma",
-            np.ones_like(sample_variance),
-            constraint=dist.constraints.positive,
-        )
+    @property
+    def mean(self):
+        return self.df + self.nc
 
-        numpyro.sample(
-            "log_sigma0", dist.Normal(mu_log_sigma0, sigma_log_sigma0)
-        )
-        numpyro.sample(
-            "log_dsigma", dist.Normal(mu_log_dsigma, sigma_log_dsigma)
-        )
+    @property
+    def variance(self):
+        return 2.0 * (self.df + 2.0 * self.nc)
 
-    optimizer = numpyro.optim.Adam(step_size=0.05)
-    return SVI(model, guide, optimizer, loss=Trace_ELBO())
+
+def setup_model(sample_variance) -> SVI:
+    def model(num_transit, statistic=None):
+        log_sigma = numpyro.sample("log_sigma", dist.Normal(0.0, 10.0))
+
+        with numpyro.plate("targets", len(num_transit)):
+            log_k = numpyro.sample("log_k", dist.Normal(0.0, 10.0))
+            lam = num_transit * 0.5 * jnp.exp(2 * (log_k - log_sigma))
+            numpyro.sample(
+                "obs",
+                dist.TransformedDistribution(
+                    NoncentralChi2(num_transit, lam),
+                    AffineTransform(loc=0.0, scale=jnp.exp(2 * log_sigma)),
+                ),
+                obs=statistic,
+            )
+
+    init = {
+        "log_sigma": 0.5 * np.log(np.median(sample_variance)),
+        "log_k": np.log(np.sqrt(sample_variance)),
+    }
+    guide = numpyro.infer.autoguide.AutoNormal(
+        model, init_loc_fn=numpyro.infer.init_to_value(values=init)
+    )
+    optimizer = numpyro.optim.Adam(step_size=1e-3)
+    return SVI(model, guide, optimizer, loss=numpyro.infer.Trace_ELBO())
 
 
 def load_data(
@@ -112,9 +170,6 @@ def fit_data(
     mag = np.ascontiguousarray(data["phot_g_mean_mag"], dtype=np.float32)
     color = np.ascontiguousarray(data["bp_rp"], dtype=np.float32)
 
-    # Setup the JAX model
-    svi = setup_model()
-
     # Setup the grid and allocate the memory
     mag_bins = np.linspace(mag_range[0], mag_range[1], num_mag_bins + 1)
     color_bins = np.linspace(
@@ -142,16 +197,17 @@ def fit_data(
                     sigma[n, m, :] = np.nan
                     continue
 
+                svi = setup_model(sample_variance[mask])
                 svi_result = svi.run(
                     random.PRNGKey(seed + n + m),
                     num_optim,
                     num_transit[mask],
-                    sample_variance[mask],
+                    stat=(num_transit[mask] - 1) * sample_variance[mask],
                     progress_bar=False,
                 )
                 params = svi_result.params
-                mu[n, m, :] = params["mu_log_sigma0"]
-                sigma[n, m, :] = params["sigma_log_sigma0"]
+                mu[n, m, :] = params["log_sigma_auto_loc"]
+                sigma[n, m, :] = params["log_sigma_auto_scale"]
                 continue
 
             for k in tqdm(range(num_iter), desc="iterations", leave=False):
@@ -160,16 +216,19 @@ def fit_data(
                     size=targets_per_fit,
                     replace=mask.sum() <= targets_per_fit,
                 )
+
+                svi = setup_model(sample_variance[masked_inds])
                 svi_result = svi.run(
                     random.PRNGKey(seed + n + m + k),
                     num_optim,
                     num_transit[masked_inds],
-                    sample_variance[masked_inds],
+                    stat=(num_transit[masked_inds] - 1)
+                    * sample_variance[masked_inds],
                     progress_bar=False,
                 )
                 params = svi_result.params
-                mu[n, m, k] = params["mu_log_sigma0"]
-                sigma[n, m, k] = params["sigma_log_sigma0"]
+                mu[n, m, k] = params["log_sigma_auto_loc"]
+                sigma[n, m, k] = params["log_sigma_auto_scale"]
 
     return mu, sigma, count
 
