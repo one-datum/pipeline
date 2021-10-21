@@ -18,3 +18,5 @@ gaia:
 noise:
   color_smoothing_scale: 0.25
   mag_smoothing_scale: 0.25
+
+zenodo: ""

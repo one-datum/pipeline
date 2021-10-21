@@ -13,6 +13,7 @@ include: "rules/simulations.smk"
 include: "rules/figures.smk"
 include: "rules/xmatch.smk"
 include: "rules/deposit.smk"
+include: "rules/upload.smk"
 
 rule all:
     input:

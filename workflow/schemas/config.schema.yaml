@@ -30,3 +30,6 @@ properties:
         type: string
       password:
         type: string
+
+  zenodo:
+    type: string
