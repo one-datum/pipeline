@@ -32,11 +32,11 @@ jobs:
         with:
           directory: .
           snakefile: workflow/Snakefile
-          args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba tests/noise_model/test_noise_model/noise/process.fits"
+          args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba tests/noise_model/noise/process.fits"
 
       - name: Bulk orbit inference
         uses: snakemake/snakemake-github-action@v1.23.0
         with:
           directory: .
           snakefile: workflow/Snakefile
-          args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba tests/noise_model/test_noise_model/inference/inferred.fits.gz"
+          args: "--configfile=tests/noise_model/config.yaml --use-conda --show-failed-logs --cores=all --conda-cleanup-pkgs cache --conda-frontend=mamba tests/noise_model/inference/inferred.fits.gz"
