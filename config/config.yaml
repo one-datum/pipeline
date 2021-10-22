@@ -1,5 +1,5 @@
 dataset_name: "edr3"
-base_table_filename: "edr3/base.fits.gz"
+base_table_filename: "base.fits.gz"
 noise_config_file: "config/noise.yaml"
 results_basedir: "results"
 
@@ -18,3 +18,5 @@ gaia:
 noise:
   color_smoothing_scale: 0.25
   mag_smoothing_scale: 0.25
+
+zenodo: ""

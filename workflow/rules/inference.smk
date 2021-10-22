@@ -1,11 +1,11 @@
 rule inference:
     input:
-        get_results_filename("{dataset}/noise/applied.fits.gz")
+        get_results_filename("noise/apply.fits.gz")
     output:
-        get_results_filename("{dataset}/inference/inferred.fits.gz")
+        get_results_filename("inference/inferred.fits.gz")
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/inference.log")
+        get_log_filename("inference.log")
     shell:
         "python workflow/scripts/inference.py --input {input} --output {output} &> {log}"

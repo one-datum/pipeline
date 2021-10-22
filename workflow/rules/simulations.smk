@@ -1,12 +1,12 @@
 rule simulations_catalog:
     output:
-        get_results_filename("{dataset}/simulations/catalog.fits.gz")
+        get_results_filename("simulations/catalog.fits.gz")
     params:
         config=config["sims_config_file"],
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/simulations/catalog.log")
+        get_log_filename("simulations/catalog.log")
     shell:
         """
         python workflow/scripts/simulate.py \\
@@ -17,13 +17,13 @@ rule simulations_catalog:
 
 rule simulations_inference:
     input:
-        get_results_filename("{dataset}/simulations/catalog.fits.gz")
+        get_results_filename("simulations/catalog.fits.gz")
     output:
-        get_results_filename("{dataset}/simulations/inferred.fits.gz")
+        get_results_filename("simulations/inferred.fits.gz")
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/simulations/inference.log")
+        get_log_filename("simulations/inference.log")
     shell:
         """
         python workflow/scripts/inference.py \\

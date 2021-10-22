@@ -10,11 +10,11 @@ XMATCHES = [
 rule xmatch_sb9:
     input:
         reference=get_results_filename("sb9.fits"),
-        table=get_results_filename("{dataset}/inference/inferred.fits.gz")
+        table=get_results_filename("inference/inferred.fits.gz")
     output:
-        filename=get_results_filename("{dataset}/xmatch/sb9.fits.gz"),
+        filename=get_results_filename("xmatch/sb9.fits.gz"),
         figure=report(
-            get_results_filename("{dataset}/figures/sb9.pdf"),
+            get_results_filename("figures/sb9.pdf"),
             category="Crossmatch",
         )
     params:
@@ -22,7 +22,7 @@ rule xmatch_sb9:
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/xmatch/sb9.log")
+        get_log_filename("xmatch/sb9.log")
     shell:
         """
         python workflow/scripts/xmatch.py \\
@@ -39,11 +39,11 @@ rule xmatch_sb9:
 rule xmatch_apogee_gold:
     input:
         reference=get_remote_filename("gold_sample.fits"),
-        table=get_results_filename("{dataset}/inference/inferred.fits.gz")
+        table=get_results_filename("inference/inferred.fits.gz")
     output:
-        filename=get_results_filename("{dataset}/xmatch/apogee-gold.fits.gz"),
+        filename=get_results_filename("xmatch/apogee-gold.fits.gz"),
         figure=report(
-            get_results_filename("{dataset}/figures/apogee-gold.pdf"),
+            get_results_filename("figures/apogee-gold.pdf"),
             category="Crossmatch",
         )
     params:
@@ -51,7 +51,7 @@ rule xmatch_apogee_gold:
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/xmatch/apogee-gold.log")
+        get_log_filename("xmatch/apogee-gold.log")
     shell:
         """
         python workflow/scripts/xmatch.py \\
@@ -70,13 +70,13 @@ rule xmatch_apogee_gold:
 rule xmatch_kepler:
     input:
         reference=get_remote_filename("kepler_edr3_1arcsec.fits"),
-        table=get_results_filename("{dataset}/inference/inferred.fits.gz")
+        table=get_results_filename("inference/inferred.fits.gz")
     output:
-        filename=get_results_filename("{dataset}/xmatch/kepler.fits.gz")
+        filename=get_results_filename("xmatch/kepler.fits.gz")
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/xmatch/kepler.log")
+        get_log_filename("xmatch/kepler.log")
     shell:
         """
         python workflow/scripts/xmatch.py \\

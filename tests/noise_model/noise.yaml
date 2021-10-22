@@ -10,5 +10,5 @@ max_mag: 7.0
 num_mag: 2
 
 targets_per_fit: 500
-num_optim: 5000
+num_optim: 500
 num_iter: 3

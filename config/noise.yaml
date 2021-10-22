@@ -17,7 +17,7 @@ num_mag: 18
 targets_per_fit: 1000
 
 # The number of SVI optimization steps to run
-num_optim: 5000
+num_optim: 20000
 
 # The number of random subsets to execute per inference
 num_iter: 5

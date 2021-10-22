@@ -20,6 +20,7 @@ if __name__ == "__main__":
     with fits.open(args.input) as f:
         hdr = f[0].header
         mu = f[1].data
+        sigma = f[2].data
         count = f[3].data
 
     # Compute the bin coordinates from the header specification
@@ -81,5 +82,7 @@ if __name__ == "__main__":
             fits.ImageHDU(mu_smooth),
             fits.ImageHDU(valid.astype(np.int32)),
             fits.ImageHDU(count),
+            fits.ImageHDU(mu),
+            fits.ImageHDU(sigma),
         ]
     ).writeto(args.output, overwrite=True)

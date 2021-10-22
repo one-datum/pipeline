@@ -16,10 +16,9 @@ include: "rules/deposit.smk"
 
 rule all:
     input:
-        get_filename_for_dataset("inference/inferred.fits.gz"),
-        get_filename_for_dataset("simulations/inferred.fits.gz"),
-        FIGURES,
-        XMATCHES
+        get_results_filename("archive.zenodo"),
+        get_results_filename("figures.zenodo"),
+        get_results_filename("xmatch.zenodo")
 
 rule catalog:
     input:
