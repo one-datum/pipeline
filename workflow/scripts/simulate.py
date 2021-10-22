@@ -4,6 +4,7 @@
 import fitsio
 import kepler
 import numpy as np
+import scipy.stats
 import yaml
 from scipy.special import gamma
 
@@ -98,6 +99,12 @@ if __name__ == "__main__":
         if rv_err[n] > max_rv_err:
             rv_err[n] = np.nan
 
+    sample_variance = 2 * nb_transits * (rv_err ** 2 - 0.11 ** 2) / np.pi
+    statistic = sample_variance * (nb_transits - 1)
+    pval = 1 - scipy.stats.chi2(nb_transits - 1).cdf(
+        statistic / rv_est_uncert ** 2
+    ).astype(np.float32)
+
     data = np.empty(
         num_sims,
         dtype=[
@@ -112,6 +119,8 @@ if __name__ == "__main__":
         ],
     )
     data["rv_est_uncert"] = rv_est_uncert
+    data["rv_unc_conf"] = np.ones_like(rv_est_uncert)
+    data["rv_pval"] = pval
     data["dr2_rv_nb_transits"] = nb_transits
     data["dr2_radial_velocity_error"] = rv_err
     data["sim_period"] = period
