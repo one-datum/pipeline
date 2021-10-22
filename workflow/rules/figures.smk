@@ -12,10 +12,10 @@ FIGURES = [
 
 rule figures_completeness:
     input:
-        get_results_filename("{dataset}/simulations/inferred.fits.gz")
+        get_results_filename("simulations/inferred.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/completeness.pdf"),
+            get_results_filename("figures/completeness.pdf"),
             category="Simulations",
         )
     params:
@@ -23,7 +23,7 @@ rule figures_completeness:
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/figures/completeness.log")
+        get_log_filename("figures/completeness.log")
     shell:
         """
         python workflow/scripts/figures/completeness.py \\
@@ -35,10 +35,10 @@ rule figures_completeness:
 
 rule figures_recovered:
     input:
-        get_results_filename("{dataset}/simulations/inferred.fits.gz")
+        get_results_filename("simulations/inferred.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/recovered.pdf"),
+            get_results_filename("figures/recovered.pdf"),
             category="Simulations",
         )
     params:
@@ -46,7 +46,7 @@ rule figures_recovered:
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/figures/recovered.log")
+        get_log_filename("figures/recovered.log")
     shell:
         """
         python workflow/scripts/figures/recovered.py \\
@@ -58,16 +58,16 @@ rule figures_recovered:
 
 rule figures_noise_model:
     input:
-        get_results_filename("{dataset}/noise/process.fits")
+        get_results_filename("noise/process.fits")
     output:
         report(
-            get_results_filename("{dataset}/figures/noise_model.pdf"),
+            get_results_filename("figures/noise_model.pdf"),
             category="Noise model",
         )
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/figures/noise_model.log")
+        get_log_filename("figures/noise_model.log")
     shell:
         """
         python workflow/scripts/figures/noise_model.py \\
@@ -78,16 +78,16 @@ rule figures_noise_model:
 
 rule figures_sigma_cmd:
     input:
-        get_results_filename("{dataset}/noise/apply.fits.gz")
+        get_results_filename("noise/apply.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/sigma_cmd.pdf"),
+            get_results_filename("figures/sigma_cmd.pdf"),
             category="Catalog",
         )
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/figures/sigma_cmd.log")
+        get_log_filename("figures/sigma_cmd.log")
     shell:
         """
         python workflow/scripts/figures/sigma_cmd.py \\
@@ -98,10 +98,10 @@ rule figures_sigma_cmd:
 
 rule figures_binary_fraction_cmd:
     input:
-        get_results_filename("{dataset}/noise/apply.fits.gz")
+        get_results_filename("noise/apply.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/binary_fraction_cmd.pdf"),
+            get_results_filename("figures/binary_fraction_cmd.pdf"),
             category="Catalog",
         )
     params:
@@ -109,7 +109,7 @@ rule figures_binary_fraction_cmd:
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/figures/binary_fraction_cmd.log")
+        get_log_filename("figures/binary_fraction_cmd.log")
     shell:
         """
         python workflow/scripts/figures/binary_fraction_cmd.py \\
@@ -121,10 +121,10 @@ rule figures_binary_fraction_cmd:
 
 rule figures_p_value_dist:
     input:
-        get_results_filename("{dataset}/noise/apply.fits.gz")
+        get_results_filename("noise/apply.fits.gz")
     output:
         report(
-            get_results_filename("{dataset}/figures/p_value_dist.pdf"),
+            get_results_filename("figures/p_value_dist.pdf"),
             category="Catalog",
         )
     params:
@@ -132,7 +132,7 @@ rule figures_p_value_dist:
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/figures/p_value_dist.log")
+        get_log_filename("figures/p_value_dist.log")
     shell:
         """
         python workflow/scripts/figures/p_value_dist.py \\

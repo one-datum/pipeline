@@ -2,13 +2,13 @@ import json
 
 rule base:
     output:
-        get_results_filename("{dataset}/base.fits.gz")
+        get_results_filename("base.fits.gz")
     params:
         gaia=json.dumps(config["gaia"])
     conda:
         "../envs/environment.yml"
     log:
-        get_log_filename("{dataset}/base.log")
+        get_log_filename("base.log")
     shell:
         """
         python workflow/scripts/query.py \\

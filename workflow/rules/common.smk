@@ -13,9 +13,7 @@ validate(sims_config, "../schemas/simulations.schema.yaml")
 
 
 def get_filename_for_dataset(filename):
-    return get_results_filename(
-        f"{config['dataset_name']}/{filename}"
-    )
+    return get_results_filename(filename)
 
 
 def get_remote_filename(filename):
