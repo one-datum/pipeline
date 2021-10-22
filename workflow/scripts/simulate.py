@@ -109,6 +109,8 @@ if __name__ == "__main__":
         num_sims,
         dtype=[
             ("rv_est_uncert", np.float32),
+            ("rv_unc_conf", np.float32),
+            ("rv_pval", np.float32),
             ("dr2_rv_nb_transits", np.int32),
             ("dr2_radial_velocity_error", np.float32),
             ("sim_period", np.float32),

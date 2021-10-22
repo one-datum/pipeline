@@ -5,6 +5,8 @@ import json
 import os
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 def upload_deposit(
@@ -57,6 +59,14 @@ def upload_deposit(
 def get_session(token):
     session = requests.Session()
     session.params = {"access_token": token}
+    retry = Retry(
+        backoff_factor=0.1,
+        status_forcelist=[403],
+        allowed_methods=["DELETE", "GET", "PUT", "POST"],
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
     return session
 
 

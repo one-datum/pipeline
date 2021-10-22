@@ -5,6 +5,7 @@ dependencies:
   - git =2.23.0
   - curl =7.71.1
   - tar =1.34
+  - zip =3.0
   - open-fonts =0.7.0
   - numpy =1.21.2
   - scipy =1.6
@@ -17,7 +18,6 @@ dependencies:
   - fitsio =1.1.4
   - pandas
   - pyyaml =5.4.1
-  - tar =1.34
   - numpyro =0.8.0
   - jax =0.2.20
   - pip =21.0
