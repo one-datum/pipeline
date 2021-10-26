@@ -24,3 +24,4 @@ dependencies:
   - pip:
       - kepler.py==0.0.6
       - tensorflow-probability==0.14.1
+      - numpyro-ncx2==0.0.2
