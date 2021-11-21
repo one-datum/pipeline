@@ -34,7 +34,7 @@ def setup_model(sample_variance) -> SVI:
             numpyro.sample(
                 "obs",
                 dist.TransformedDistribution(
-                    NoncentralChi2(num_transit, lam),
+                    NoncentralChi2(num_transit - 1, lam),
                     AffineTransform(loc=0.0, scale=jnp.exp(2 * log_sigma)),
                 ),
                 obs=statistic,
