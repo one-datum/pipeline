@@ -60,7 +60,7 @@ def _inner_process(
     # The Keplerian model
     ivar = np.exp(-2 * ln_sigma)
     target_lam = rate_param[nb_transits - 1] * ivar[:, None]
-    ncx2 = scipy.stats.ncx2(df=nb_transits[:, None], nc=target_lam)
+    ncx2 = scipy.stats.ncx2(df=nb_transits[:, None] - 1, nc=target_lam)
 
     s2 = np.multiply(statistic, ivar, out=ivar)
     log_weight = ncx2.logpdf(s2[:, None])
@@ -82,7 +82,6 @@ def process(
     rate_param: np.ndarray,
     args: Tuple[np.ndarray, np.ndarray, np.ndarray],
 ) -> np.ndarray:
-    ln_sigma, nb_transits, statistic = args
     return _inner_process(rate_param, *args)
 
 
