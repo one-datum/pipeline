@@ -1,18 +1,18 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.2.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
         exclude_types: [json, binary]
         exclude: \.fits$
   - repo: https://github.com/PyCQA/isort
-    rev: "5.8.0"
+    rev: "5.10.1"
     hooks:
       - id: isort
         additional_dependencies: [toml]
         exclude: paper/figures
   - repo: https://github.com/psf/black
-    rev: "20.8b1"
+    rev: "22.3.0"
     hooks:
       - id: black
