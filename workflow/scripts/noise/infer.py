@@ -95,7 +95,7 @@ def fit_data(
     eps = np.ascontiguousarray(
         data["dr2_radial_velocity_error"], dtype=np.float32
     )
-    sample_variance = 2 * num_transit * (eps ** 2 - 0.11 ** 2) / np.pi
+    sample_variance = 2 * num_transit * (eps**2 - 0.11**2) / np.pi
     mag = np.ascontiguousarray(data["phot_g_mean_mag"], dtype=np.float32)
     color = np.ascontiguousarray(data["bp_rp"], dtype=np.float32)
 

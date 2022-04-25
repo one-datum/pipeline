@@ -116,7 +116,7 @@ if __name__ == "__main__":
     ln_sigma = np.log(data["rv_est_uncert"])
     nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)
     eps = data["dr2_radial_velocity_error"]
-    sample_variance = 2 * nb_transits * (eps ** 2 - 0.11 ** 2) / np.pi
+    sample_variance = 2 * nb_transits * (eps**2 - 0.11**2) / np.pi
     statistic = (sample_variance * (nb_transits - 1)).astype(np.float32)
     pval = data["rv_pval"]
     valid = (
