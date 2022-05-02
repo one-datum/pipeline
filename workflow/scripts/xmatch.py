@@ -50,7 +50,7 @@ chi[chi >= 0] /= yerr[0][chi >= 0]
 chi[chi < 0] /= yerr[1][chi < 0]
 ax.hist(chi, 50, range=(-10, 10), color="k", histtype="step", density=True)
 x0 = np.linspace(-10, 10, 500)
-ax.plot(x0, np.exp(-(x0 ** 2)) / np.sqrt(2 * np.pi), color="C1", lw=0.5)
+ax.plot(x0, np.exp(-(x0**2)) / np.sqrt(2 * np.pi), color="C1", lw=0.5)
 ax.set_yticks([])
 ax.set_xlabel("normalized residuals")
 

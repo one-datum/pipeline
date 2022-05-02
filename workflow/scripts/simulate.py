@@ -94,15 +94,15 @@ if __name__ == "__main__":
         rv_mod = semiamp[n] * (cosw[n] * (ecc[n] + cosf) - sinw[n] * sinf)
         rv_mod += rv_est_uncert[n] * random.standard_normal(nb_transits[n])
         rv_err[n] = np.sqrt(
-            0.5 * np.pi * np.var(rv_mod, ddof=1) / nb_transits[n] + 0.11 ** 2
+            0.5 * np.pi * np.var(rv_mod, ddof=1) / nb_transits[n] + 0.11**2
         )
         if rv_err[n] > max_rv_err:
             rv_err[n] = np.nan
 
-    sample_variance = 2 * nb_transits * (rv_err ** 2 - 0.11 ** 2) / np.pi
+    sample_variance = 2 * nb_transits * (rv_err**2 - 0.11**2) / np.pi
     statistic = sample_variance * (nb_transits - 1)
     pval = 1 - scipy.stats.chi2(nb_transits - 1).cdf(
-        statistic / rv_est_uncert ** 2
+        statistic / rv_est_uncert**2
     ).astype(np.float32)
 
     data = np.empty(
