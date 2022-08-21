@@ -24,7 +24,7 @@ rule simulations_inference:
     output:
         get_results_filename("simulations/inferred.fits.gz")
     conda:
-        "../envs/baseline.yml"
+        "../envs/inference.yml"
     log:
         get_log_filename("simulations/inference.log")
     shell:

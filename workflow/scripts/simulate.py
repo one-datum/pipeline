@@ -118,6 +118,7 @@ if __name__ == "__main__":
             ("rv_pval_err", np.float32),
             ("rv_nb_transits", np.int32),
             ("radial_velocity_error", np.float32),
+            ("rv_time_duration", np.float32),
             ("sim_period", np.float32),
             ("sim_semiamp", np.float32),
             ("sim_ecc", np.float32),
@@ -131,6 +132,7 @@ if __name__ == "__main__":
     data["rv_pval_err"] = pval_err
     data["rv_nb_transits"] = nb_transits
     data["radial_velocity_error"] = rv_err
+    data["rv_time_duration"] = baselines
     data["sim_period"] = period
     data["sim_semiamp"] = semiamp
     data["sim_ecc"] = ecc

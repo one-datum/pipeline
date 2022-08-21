@@ -47,7 +47,7 @@ valid = np.isfinite(data["phot_g_mean_mag"].value) & np.isfinite(
     data["bp_rp"].value
 )
 inds = np.arange(len(data))[valid]
-for n in range(1, len(inds), step):
+for n in range(0, len(inds), step):
     i = inds[n : n + step]
     color = np.ascontiguousarray(data["bp_rp"].value[i], dtype=float)
     mag = np.ascontiguousarray(data["phot_g_mean_mag"].value[i], dtype=float)

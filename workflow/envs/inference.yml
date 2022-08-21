@@ -4,7 +4,9 @@ dependencies:
   - python =3.10
   - numpy
   - scipy
-  - fitsio
+  - astropy
+  - jax
+  - tqdm
   - pip
   - pip:
-      - kepler.py
+      - tensorflow-probability
