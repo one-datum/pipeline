@@ -3,6 +3,7 @@ URLS = {
     "gold_sample.fits": "https://users.flatironinstitute.org/~apricewhelan/data/apogee/clean-unimodal-turbo20-beta.fits",
     "kepler_dr2_1arcsec.fits": "https://www.dropbox.com/s/xo1n12fxzgzybny/kepler_dr2_1arcsec.fits?dl=1",
     "kepler_edr3_1arcsec.fits": "https://www.dropbox.com/s/bkek5qc4hdnlz7f/kepler_edr3_1arcsec.fits?dl=0",
+    "base.fits.gz": "https://zenodo.org/record/7007600/files/one-datum-dr3-result.fits.gz?download=1",
 }
 
 localrules: get_data
@@ -13,7 +14,7 @@ rule get_data:
     params:
         url=lambda wildcards: URLS[wildcards[0]]
     conda:
-        "../envs/environment.yml"
+        "../envs/remote.yml"
     log:
         get_log_filename("remote/{filename}.log")
     shell:

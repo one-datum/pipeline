@@ -1,120 +1,67 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import argparse
+import pickle
 
-from typing import Iterable, Tuple, Union
-
-import fitsio
+import jax
+import jax.numpy as jnp
 import numpy as np
 import scipy.stats
-from astropy.io import fits
-from numpy.lib.recfunctions import append_fields
-from scipy.interpolate import RegularGridInterpolator
+from astropy.table import Table
+
+jax.config.update("jax_enable_x64", True)
 
 
-def get_uncertainty_model(
-    filename: str,
-    *,
-    bounds_error: bool = False,
-    fill_value: float = np.nan,
-) -> Tuple[RegularGridInterpolator, RegularGridInterpolator]:
-    with fits.open(filename) as f:
-        hdr = f[0].header
-        mu = f[1].data
-        mask = f[2].data
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--input", required=True, type=str)
+parser.add_argument("--gp", required=True, type=str)
+parser.add_argument("-o", "--output", required=True, type=str)
+args = parser.parse_args()
 
-    color_bins = np.linspace(
-        hdr["MIN_COL"], hdr["MAX_COL"], hdr["NUM_COL"] + 1
-    )
-    mag_bins = np.linspace(hdr["MIN_MAG"], hdr["MAX_MAG"], hdr["NUM_MAG"] + 1)
-    return RegularGridInterpolator(
-        [
-            0.5 * (mag_bins[1:] + mag_bins[:-1]),
-            0.5 * (color_bins[1:] + color_bins[:-1]),
-        ],
-        mu,
-        bounds_error=bounds_error,
-        fill_value=fill_value,
-    ), RegularGridInterpolator(
-        [
-            0.5 * (mag_bins[1:] + mag_bins[:-1]),
-            0.5 * (color_bins[1:] + color_bins[:-1]),
-        ],
-        mask.astype(np.float32),
-        bounds_error=False,
-        fill_value=0.0,
+with open(args.gp, "rb") as f:
+    (params, y, gp) = pickle.load(f)
+
+
+@jax.jit
+def get_noise_estimate(color, mag):
+    cond = gp.condition(y, (color, mag)).gp
+    return cond.loc, jnp.sqrt(
+        cond.variance + jnp.exp(2 * params["log_jitter"])
     )
 
 
-def load_data(
-    data_path: str,
-    *,
-    rows: Union[Iterable[int], slice] = slice(None),
-    cols: Iterable[str] = [
-        "source_id",
-        "ra",
-        "dec",
-        "parallax",
-        "bp_rp",
-        "phot_g_mean_mag",
-        "dr2_rv_nb_transits",
-        "dr2_radial_velocity_error",
-    ],
-    ext: int = 1,
-) -> np.recarray:
-    with fitsio.FITS(data_path) as f:
-        return f[ext][cols][rows]
+print("Loading data...")
+data = Table.read(args.input)
 
+print("Estimating noise...")
+nb_transits = data["rv_nb_transits"].value.astype(np.int32)
+eps = data["radial_velocity_error"].value
+sample_variance = 2 * nb_transits * (eps**2 - 0.11**2) / np.pi
+statistic = sample_variance * (nb_transits - 1)
+norm = np.random.default_rng(55).standard_normal(50)
 
-def compute_ln_sigma(
-    data: np.recarray, *, filename: str, step: int = 500
-) -> Tuple[np.ndarray, np.ndarray]:
-    noise_model, mask_model = get_uncertainty_model(filename)
-    ln_sigma = np.empty(len(data), dtype=np.float32)
-    ln_sigma[:] = np.nan
-    confidence = np.zeros(len(data), dtype=np.float32)
-    for n in range(0, len(data), step):
-        mask = np.isfinite(
-            data["phot_g_mean_mag"][n : n + step]
-        ) & np.isfinite(data["bp_rp"][n : n + step])
-        X = np.concatenate(
-            (
-                data["phot_g_mean_mag"][n : n + step][mask, None],
-                data["bp_rp"][n : n + step][mask, None],
-            ),
-            axis=1,
-        )
-        ln_sigma[n : n + step][mask] = noise_model(X)
-        confidence[n : n + step][mask] = mask_model(X)
-    return ln_sigma, confidence
+step = 5000
+ln_sigma = np.full(len(data), np.nan)
+ln_sigma_err = np.full(len(data), np.nan)
+pval = np.full(len(data), np.nan)
+pval_err = np.full(len(data), np.nan)
+valid = np.isfinite(data["phot_g_mean_mag"].value) & np.isfinite(
+    data["bp_rp"].value
+)
+inds = np.arange(len(data))[valid]
+for n in range(1, len(inds), step):
+    i = inds[n : n + step]
+    color = np.ascontiguousarray(data["bp_rp"].value[i], dtype=float)
+    mag = np.ascontiguousarray(data["phot_g_mean_mag"].value[i], dtype=float)
+    ln_sigma[i], ln_sigma_err[i] = get_noise_estimate(color, mag)
 
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", required=True, type=str)
-    parser.add_argument("-n", "--noise-model", required=True, type=str)
-    parser.add_argument("-o", "--output", required=True, type=str)
-    args = parser.parse_args()
-
-    print("Loading data...")
-    data = load_data(args.input)
-
-    print("Estimating sigma...")
-    ln_sigma, confidence = compute_ln_sigma(data, filename=args.noise_model)
-
-    print("Computing p-values...")
-    nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)
-    eps = data["dr2_radial_velocity_error"]
-    sample_variance = 2 * nb_transits * (eps**2 - 0.11**2) / np.pi
-    statistic = sample_variance * (nb_transits - 1)
-    pval = 1 - scipy.stats.chi2(nb_transits - 1).cdf(
-        statistic * np.exp(-2 * ln_sigma)
-    ).astype(np.float32)
-
-    data = append_fields(
-        data,
-        ["rv_est_uncert", "rv_unc_conf", "rv_pval"],
-        [np.exp(ln_sigma), confidence, pval],
+    arg = ln_sigma[i, None] + ln_sigma_err[i, None] * norm[None, :]
+    arg = 1 - scipy.stats.chi2(nb_transits[i, None] - 1).cdf(
+        statistic[i, None] * np.exp(-2 * arg)
     )
-    fitsio.write(args.output, data, clobber=True)
+    pval[i] = np.mean(arg, axis=1)
+    pval_err[i] = np.std(arg, axis=1)
+
+data["rv_ln_uncert"] = ln_sigma
+data["rv_ln_uncert_err"] = ln_sigma_err
+data["rv_pval"] = pval
+data["rv_pval_err"] = pval_err
+data.write(args.output, overwrite=True)

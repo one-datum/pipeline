@@ -12,7 +12,7 @@ FIGURES = [
 
 rule figures_completeness:
     input:
-        get_results_filename("simulations/inferred.fits.gz")
+        get_results_filename("simulations/catalog.fits.gz")
     output:
         report(
             get_results_filename("figures/completeness.pdf"),
@@ -21,7 +21,7 @@ rule figures_completeness:
     params:
         threshold=config["det_pval_thresh"]
     conda:
-        "../envs/environment.yml"
+        "../envs/figures.yml"
     log:
         get_log_filename("figures/completeness.log")
     shell:
@@ -44,7 +44,7 @@ rule figures_recovered:
     params:
         threshold=config["det_pval_thresh"]
     conda:
-        "../envs/environment.yml"
+        "../envs/figures.yml"
     log:
         get_log_filename("figures/recovered.log")
     shell:
@@ -65,7 +65,7 @@ rule figures_noise_model:
             category="Noise model",
         )
     conda:
-        "../envs/environment.yml"
+        "../envs/figures.yml"
     log:
         get_log_filename("figures/noise_model.log")
     shell:
@@ -85,7 +85,7 @@ rule figures_sigma_cmd:
             category="Catalog",
         )
     conda:
-        "../envs/environment.yml"
+        "../envs/figures.yml"
     log:
         get_log_filename("figures/sigma_cmd.log")
     shell:
@@ -107,7 +107,7 @@ rule figures_binary_fraction_cmd:
     params:
         threshold=config["det_pval_thresh"]
     conda:
-        "../envs/environment.yml"
+        "../envs/figures.yml"
     log:
         get_log_filename("figures/binary_fraction_cmd.log")
     shell:
@@ -130,7 +130,7 @@ rule figures_p_value_dist:
     params:
         threshold=config["det_pval_thresh"]
     conda:
-        "../envs/environment.yml"
+        "../envs/figures.yml"
     log:
         get_log_filename("figures/p_value_dist.log")
     shell:

@@ -3,9 +3,9 @@
 
 import argparse
 
-import fitsio
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy.io import fits
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", required=True, type=str)
@@ -13,7 +13,8 @@ parser.add_argument("-o", "--output", required=True, type=str)
 parser.add_argument("-t", "--threshold", required=True, type=float)
 args = parser.parse_args()
 
-data = fitsio.read(args.input)
+with fits.open(args.input) as f:
+    data = f[1].data
 
 # Compute "detection" mask
 det = np.isfinite(data["dr2_radial_velocity_error"])

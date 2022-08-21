@@ -15,10 +15,10 @@ args = parser.parse_args()
 with fits.open(args.input) as f:
     data = f[1].data
 
-sigma = data["rv_est_uncert"]
-nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)
-m = np.isfinite(sigma) & (nb_transits >= 3)
-sigma = sigma[m]
+ln_sigma = np.exp(data["rv_ln_uncert"])
+nb_transits = data["rv_nb_transits"].astype(np.int32)
+m = np.isfinite(ln_sigma) & (nb_transits >= 3)
+ln_sigma = ln_sigma[m]
 nb_transits = nb_transits[m]
 color = data["bp_rp"][m]
 mag = data["phot_g_mean_mag"][m]
@@ -29,7 +29,10 @@ rng &= (mag - dm > -4.0) & (mag - dm < 10.0)
 denom, bx, by = np.histogram2d(color[rng], mag[rng] - dm[rng], bins=(80, 95))
 
 num, bx, by = np.histogram2d(
-    color[rng], mag[rng] - dm[rng], bins=(bx, by), weights=sigma[rng]
+    color[rng],
+    mag[rng] - dm[rng],
+    bins=(bx, by),
+    weights=np.exp(ln_sigma[rng]),
 )
 
 plt.figure(figsize=(7, 6))

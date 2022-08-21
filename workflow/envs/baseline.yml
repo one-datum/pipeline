@@ -1,0 +1,19 @@
+channels:
+  - conda-forge
+dependencies:
+  - python =3.10
+  - git
+  - curl
+  - tar
+  - zip
+  - open-fonts
+  - numpy
+  - scipy
+  - matplotlib
+  - pyyaml
+  - fitsio
+  - astropy
+  - astroquery
+  - pip
+  - pip:
+      - kepler.py

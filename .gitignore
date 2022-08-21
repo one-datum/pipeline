@@ -286,3 +286,4 @@ build
 localconfig.yaml
 src/one-datum/
 remote
+/*.ipynb

@@ -14,7 +14,7 @@ rule archive_directory:
     wildcard_constraints:
         archive="[a-zA-Z]+"
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("{archive}.log")
     shell:
@@ -27,7 +27,7 @@ rule archive_copy:
     output:
         get_results_filename("archive/{filename}")
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("archive/{filename}.log")
     shell:
@@ -42,7 +42,7 @@ rule archive_zip:
     wildcard_constraints:
         archive="[a-zA-Z]+"
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("{archive}.zip.log")
     shell:
@@ -59,7 +59,7 @@ rule deposit_results:
         creds=config["zenodo"],
         metadata="workflow/metadata/{target}.yaml"
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("{target}.zenodo.log")
     shell:

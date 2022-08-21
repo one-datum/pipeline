@@ -4,7 +4,7 @@ rule inference:
     output:
         get_results_filename("inference/inferred.fits.gz")
     conda:
-        "../envs/environment.yml"
+        "../envs/inference.yml"
     log:
         get_log_filename("inference.log")
     shell:

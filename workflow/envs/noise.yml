@@ -1,0 +1,17 @@
+channels:
+  - conda-forge
+dependencies:
+  - python =3.10
+  - open-fonts
+  - numpy
+  - scipy
+  - matplotlib
+  - astropy
+  - fitsio
+  - pyyaml
+  - tqdm
+  - jax
+  - pip
+  - pip:
+      - tinygp
+      - jaxopt
