@@ -10,8 +10,8 @@ dependencies:
   - fitsio
   - pyyaml
   - tqdm
-  - jax
   - pip
   - pip:
       - tinygp
       - jaxopt
+      - jax[cpu]
