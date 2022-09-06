@@ -5,8 +5,8 @@ from typing import Tuple
 
 import numpy as np
 import scipy.stats
-from tqdm import tqdm
 from astropy.io import fits
+from tqdm import tqdm
 
 # import jax.numpy as jnp
 # import numpyro

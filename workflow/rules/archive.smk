@@ -1,6 +1,6 @@
 import json
 
-# # This rule is no longer used since we download the query from Zenodo 
+# # This rule is no longer used since we download the query from Zenodo
 # rule base:
 #     output:
 #         get_results_filename("base.fits.gz")
