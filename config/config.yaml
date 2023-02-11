@@ -1,4 +1,4 @@
-dataset_name: "edr3"
+dataset_name: "dr3"
 base_table_filename: "base.fits.gz"
 noise_config_file: "config/noise.yaml"
 results_basedir: "results"

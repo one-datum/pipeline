@@ -30,9 +30,13 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input", required=True, type=str)
     parser.add_argument("-o", "--output", required=True, type=str)
     parser.add_argument("-c", "--config", required=True, type=str)
     args = parser.parse_args()
+
+    data = fitsio.read(args.input)
+    max_rv_err = data["radial_velocity_error"].max()
 
     with open(args.config, "r") as f:
         config = yaml.load(f.read(), Loader=yaml.FullLoader)
@@ -40,27 +44,20 @@ if __name__ == "__main__":
     print("Simulating model...")
     random = np.random.default_rng(int(config["seed"]))
     num_sims = int(config["num_sims"])
-    max_rv_err = float(config["max_rv_error"])
 
-    # Simulate number of transits using approximate power law model
-    nb_transits = np.floor(
-        np.exp(random.uniform(0.0, np.log(200), num_sims))
-    ).astype(np.int32)
-    # nb_transits = simulate_nb_transits(
-    #     random,
-    #     num_sims,
-    #     config["nb_transits"]["n_break"],
-    #     config["nb_transits"]["power"],
-    # )
+    # Simulate number of transits and baselines using the empirical distribution
+    inds = random.integers(len(data), size=num_sims)
+    nb_transits = data["rv_nb_transits"][inds].astype(np.int32)
+    baselines = data["rv_time_duration"][inds]
 
     # Parameters
-    rv_est_uncert = np.exp(
-        random.uniform(
-            np.log(config["rv_est_uncert"]["min"]),
-            np.log(config["rv_est_uncert"]["max"]),
-            num_sims,
-        )
+    ln_sigma_err = 0.05
+    ln_sigma = random.uniform(
+        np.log(config["rv_est_uncert"]["min"]),
+        np.log(config["rv_est_uncert"]["max"]),
+        num_sims,
     )
+    del_ln_sigma = ln_sigma_err * random.standard_normal(num_sims)
     period = np.exp(
         random.uniform(
             np.log(config["period"]["min"]),
@@ -83,36 +80,45 @@ if __name__ == "__main__":
     cosw = np.cos(omega)
     sinw = np.sin(omega)
 
+    norm = np.random.default_rng(55).standard_normal(50)
+
     # Simulate the RV error
     rv_err = np.full(num_sims, np.nan)
+    pval = np.full(num_sims, np.nan)
+    pval_err = np.full(num_sims, np.nan)
     for n in range(num_sims):
-        t = random.uniform(
-            config["time"]["min"], config["time"]["max"], nb_transits[n]
-        )
+        t = random.uniform(0, baselines[n], nb_transits[n])
         M = 2 * np.pi * t / period[n] + phase[n]
         _, cosf, sinf = kepler.kepler(M, ecc[n] + np.zeros_like(M))
         rv_mod = semiamp[n] * (cosw[n] * (ecc[n] + cosf) - sinw[n] * sinf)
-        rv_mod += rv_est_uncert[n] * random.standard_normal(nb_transits[n])
+        rv_mod += np.exp(
+            ln_sigma[n] + del_ln_sigma[n]
+        ) * random.standard_normal(nb_transits[n])
+        sample_variance = np.var(rv_mod, ddof=1)
         rv_err[n] = np.sqrt(
-            0.5 * np.pi * np.var(rv_mod, ddof=1) / nb_transits[n] + 0.11**2
+            0.5 * np.pi * sample_variance / nb_transits[n] + 0.11**2
         )
         if rv_err[n] > max_rv_err:
             rv_err[n] = np.nan
 
-    sample_variance = 2 * nb_transits * (rv_err**2 - 0.11**2) / np.pi
-    statistic = sample_variance * (nb_transits - 1)
-    pval = 1 - scipy.stats.chi2(nb_transits - 1).cdf(
-        statistic / rv_est_uncert**2
-    ).astype(np.float32)
+        statistic = sample_variance * (nb_transits[n] - 1)
+        arg = ln_sigma[n] + ln_sigma_err * norm
+        arg = 1 - scipy.stats.chi2(nb_transits[n] - 1).cdf(
+            statistic * np.exp(-2 * arg)
+        )
+        pval[n] = np.mean(arg)
+        pval_err[n] = np.std(arg)
 
     data = np.empty(
         num_sims,
         dtype=[
-            ("rv_est_uncert", np.float32),
-            ("rv_unc_conf", np.float32),
+            ("rv_ln_uncert", np.float32),
+            ("rv_ln_uncert_err", np.float32),
             ("rv_pval", np.float32),
-            ("dr2_rv_nb_transits", np.int32),
-            ("dr2_radial_velocity_error", np.float32),
+            ("rv_pval_err", np.float32),
+            ("rv_nb_transits", np.int32),
+            ("radial_velocity_error", np.float32),
+            ("rv_time_duration", np.float32),
             ("sim_period", np.float32),
             ("sim_semiamp", np.float32),
             ("sim_ecc", np.float32),
@@ -120,11 +126,13 @@ if __name__ == "__main__":
             ("sim_phase", np.float32),
         ],
     )
-    data["rv_est_uncert"] = rv_est_uncert
-    data["rv_unc_conf"] = np.ones_like(rv_est_uncert)
+    data["rv_ln_uncert"] = ln_sigma
+    data["rv_ln_uncert_err"][:] = ln_sigma_err
     data["rv_pval"] = pval
-    data["dr2_rv_nb_transits"] = nb_transits
-    data["dr2_radial_velocity_error"] = rv_err
+    data["rv_pval_err"] = pval_err
+    data["rv_nb_transits"] = nb_transits
+    data["radial_velocity_error"] = rv_err
+    data["rv_time_duration"] = baselines
     data["sim_period"] = period
     data["sim_semiamp"] = semiamp
     data["sim_ecc"] = ecc

@@ -1,0 +1,14 @@
+channels:
+  - conda-forge
+dependencies:
+  - python =3.10
+  - numpy
+  - scipy
+  - astropy
+  - tqdm
+  - pip
+  - pip:
+    - -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    - jax[cpu]; sys_platform != 'linux'
+    - jax[cuda]; sys_platform == 'linux'
+    - tensorflow-probability

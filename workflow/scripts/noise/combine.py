@@ -30,10 +30,8 @@ if __name__ == "__main__":
     for inp in sorted(args.input, key=sorter):
         with fits.open(inp) as hdu:
             mu.append(hdu[1].data)
-            sigma.append(hdu[2].data)
-            count.append(hdu[3].data)
+            count.append(hdu[2].data)
     mu = np.concatenate(mu, axis=0)
-    sigma = np.concatenate(sigma, axis=0)
     count = np.concatenate(count, axis=0)
 
     hdr = fits.Header()
@@ -52,7 +50,6 @@ if __name__ == "__main__":
         [
             fits.PrimaryHDU(header=hdr),
             fits.ImageHDU(mu),
-            fits.ImageHDU(sigma),
             fits.ImageHDU(count),
         ]
     ).writeto(args.output, overwrite=True)

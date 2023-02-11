@@ -16,10 +16,9 @@ args = parser.parse_args()
 with fits.open(args.input) as f:
     data = f[1].data
 
-conf = data["rv_unc_conf"]
-sigma = data["rv_est_uncert"]
-nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)
-m = np.isfinite(sigma) & (nb_transits >= 3) & (conf > 0.75)
+ln_sigma = data["rv_ln_uncert"]
+nb_transits = data["rv_nb_transits"].astype(np.int32)
+m = np.isfinite(ln_sigma) & (nb_transits >= 3)
 pval = data["rv_pval"][m]
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6))

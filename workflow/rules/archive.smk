@@ -1,21 +1,22 @@
 import json
 
-rule base:
-    output:
-        get_results_filename("base.fits.gz")
-    params:
-        gaia=json.dumps(config["gaia"])
-    conda:
-        "../envs/environment.yml"
-    log:
-        get_log_filename("base.log")
-    shell:
-        """
-        python workflow/scripts/query.py \\
-            --output {output} \\
-            --gaia-creds '{params.gaia}' \\
-            &> {log}
-        """
+# # This rule is no longer used since we download the query from Zenodo
+# rule base:
+#     output:
+#         get_results_filename("base.fits.gz")
+#     params:
+#         gaia=json.dumps(config["gaia"])
+#     conda:
+#         "../envs/baseline.yml"
+#     log:
+#         get_log_filename("base.log")
+#     shell:
+#         """
+#         python workflow/scripts/query.py \\
+#             --output {output} \\
+#             --gaia-creds '{params.gaia}' \\
+#             &> {log}
+#         """
 
 rule sb9:
     output:
@@ -27,7 +28,7 @@ rule sb9:
     params:
         gaia=json.dumps(config["gaia"])
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("sb9.log")
     shell:

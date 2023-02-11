@@ -20,7 +20,7 @@ rule xmatch_sb9:
     params:
         threshold=config["det_pval_thresh"]
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("xmatch/sb9.log")
     shell:
@@ -49,7 +49,7 @@ rule xmatch_apogee_gold:
     params:
         threshold=config["det_pval_thresh"]
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("xmatch/apogee-gold.log")
     shell:
@@ -74,7 +74,7 @@ rule xmatch_kepler:
     output:
         filename=get_results_filename("xmatch/kepler.fits.gz")
     conda:
-        "../envs/environment.yml"
+        "../envs/baseline.yml"
     log:
         get_log_filename("xmatch/kepler.log")
     shell:

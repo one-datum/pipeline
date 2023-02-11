@@ -16,11 +16,9 @@ args = parser.parse_args()
 with fits.open(args.input) as f:
     data = f[1].data
 
-conf = data["rv_unc_conf"]
-sigma = data["rv_est_uncert"]
-nb_transits = data["dr2_rv_nb_transits"].astype(np.int32)
-m = np.isfinite(sigma) & (nb_transits >= 3) & (conf > 0.75)
-sigma = sigma[m]
+ln_sigma = data["rv_ln_uncert"]
+nb_transits = data["rv_nb_transits"].astype(np.int32)
+m = np.isfinite(ln_sigma) & (nb_transits >= 3)
 nb_transits = nb_transits[m]
 pval = data["rv_pval"][m]
 color = data["bp_rp"][m]
