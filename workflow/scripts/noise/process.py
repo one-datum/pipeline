@@ -40,6 +40,7 @@ X = np.stack((X_.flatten()[valid], Y_.flatten()[valid]), axis=-1)
 y = y[valid]
 yerr = yerr[valid]
 
+
 # Set up the GP model
 def build_gp(params):
     kernel = jnp.exp(params["log_amp"]) * transforms.Cholesky.from_parameters(
