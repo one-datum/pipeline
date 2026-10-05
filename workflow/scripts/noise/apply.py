@@ -17,7 +17,7 @@ parser.add_argument("-o", "--output", required=True, type=str)
 args = parser.parse_args()
 
 with open(args.gp, "rb") as f:
-    (params, y, gp) = pickle.load(f)
+    params, y, gp = pickle.load(f)
 
 
 @jax.jit
